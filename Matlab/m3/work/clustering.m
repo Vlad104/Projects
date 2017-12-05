@@ -1,53 +1,81 @@
 function Struct = clustering(energy, energy0, angle, EQ64, EQ256)
-    Struct(1:int32(EQ64*EQ256/2),1:6) = 0; % 1- номер обл, 2-сумм мощность, 3-дальность, 4- скор, 5 - угол, 6 - кол-во точек (не нужно)
-    Mark(1:EQ64,1:EQ256) = 0;
-    Stack(1:EQ256/4*EQ64/4,1:2) = 0;
-    struct_size = 1;
-    BB = energy;
+%	функция кластеризации
+%   выделяет отдельные односвязные области
+%   заполняет структуру данных для каждой области
+%   вход:
+%       - energy - матрица EQ64хEQ256 значений мощности в точках, со
+%         значением выше порога и 0 в точках ниже порога
+%       - energy0 - матрица EQ64хEQ256 значений мощности в каждой точке
+%       - angle - угол, в каждой точке
+%       - EQ256 и EQ64 - эквиваленты чисел 256 и 64 соответственног
+%   выход:
+%       - struct - структура:
+%                           1 - номер области (цели), 
+%                           2 - суммарная мощность области (цели), 
+%                           3 - дальность до цели, 
+%                           4 - относительная скорость цели, 
+%                           5 - угол до цели, 
+%                           6 - кол-во точек в области (нужно для отладки)  
+
+    Struct(1:int32(EQ64*EQ256/2),1:6) = 0;  % создание структуры с нулями
+    Mark(1:EQ64,1:EQ256) = 0;  % массив, с отметками о пройденных точках
+    Stack(1:EQ256/4*EQ64/4,1:2) = 0;  % массив (стэк), со значениями координат интересных точек
+    struct_size = 1;  % номер цели в структуре
+    MAT = energy; % нужно для визуализации кластеризации
     for ii = 1 : EQ64
         for jj = 1 : EQ256
-            stack_pointer = 1;
+            stack_pointer = 1;  % точка остановки в Stack
             i = ii;
             j = jj;
-            flag = 0; %first IN from this point
+            flag = 0; % флаг = 0 - первый вход в while для текущих ii,jj
             while ( stack_pointer > 0 )
-                if flag %if not first times in while
+                if flag % если в стек были записаны координаты, то считываем последние из них
                     i = Stack(stack_pointer,1);
                     j = Stack(stack_pointer,2);
                 end;
                 flag = 1;          
-
+                
+                % точка должна не выходить за рамки массива, а также быть
+                % не помеченной и ее мощность выше выше нуля
                 if ( j <= EQ256 && i <= EQ64 && Mark(i,j) == 0 && energy(i,j) > 0 )
 
-                    Struct(struct_size,1) = struct_size;
-                    Struct(struct_size,2) = Struct(struct_size,2) + energy0(i,j);                
-                    Struct(struct_size,3) = Struct(struct_size,3) + j*energy0(i,j);
-                    Struct(struct_size,4) = Struct(struct_size,4) + (i - EQ64/2)*energy0(i,j);                
-                    Struct(struct_size,5) = Struct(struct_size,5) + angle(i,j)*energy0(i,j);
-                    Struct(struct_size,6) = Struct(struct_size,6) + 1; %dont need
+                    Struct(struct_size,1) = struct_size; % номер области
+                    Struct(struct_size,2) = Struct(struct_size,2) + energy0(i,j); % мощность области                
+                    Struct(struct_size,3) = Struct(struct_size,3) + j*energy0(i,j); % дальность до цели 
+                    Struct(struct_size,4) = Struct(struct_size,4) + (i - EQ64/2)*energy0(i,j); % относительная скорость цели                
+                    Struct(struct_size,5) = Struct(struct_size,5) + angle(i,j)*energy0(i,j); % угол до цели
+                    Struct(struct_size,6) = Struct(struct_size,6) + 1; % кол-во точек в области (нужно для отладки)
 
-                    Mark(i,j) = 1;
-                    BB(i,j) = struct_size;                
-                    stack_pointer = stack_pointer - 1;
+                    Mark(i,j) = 1; % помечаем точку пройденной, больше мы в неё не войдем
+                    MAT(i,j) = struct_size; % нужно для визуализации кластеризации               
+                    stack_pointer = stack_pointer - 1; % разрешаем запись в стеке поверх "отработанных" координат
 
-                    if ( j + 1 <= EQ256 && Mark(i, j+1) == 0 && energy(i, j+1) > 0 )
+                    %проверка точки справа, если она интересная, записываем
+                    %её координаты в стэк
+                    if ( j + 1 <= EQ256 && Mark(i, j+1) == 0 && energy(i, j+1) > 0 )  
                         stack_pointer = stack_pointer + 1;
                         Stack(stack_pointer,1) = i;
                         Stack(stack_pointer,2) = j+1;
                     end;
-
+                    
+                    %проверка точки слева, если она интересная, записываем
+                    %её координаты в стэк
                     if ( j - 1 >= 1 && Mark(i, j-1) == 0 && energy(i, j-1) > 0 )
                         stack_pointer = stack_pointer + 1; 
                         Stack(stack_pointer,1) = i;
                         Stack(stack_pointer,2) = j-1;
                     end;
 
+                    %проверка точки сверху, если она интересная, записываем
+                    %её координаты в стэк
                     if ( i + 1 <= EQ64 && Mark(i+1, j) == 0 && energy(i+1, j) > 0 )
                         stack_pointer = stack_pointer + 1; 
                         Stack(stack_pointer,1) = i+1;
                         Stack(stack_pointer,2) = j;
                     end;
 
+                    %проверка точки снизу, если она интересная, записываем
+                    %её координаты в стэк
                     if ( i - 1 >= 1 && Mark(i-1, j) == 0 && energy(i-1, j) > 0 )
                         stack_pointer = stack_pointer + 1; 
                         Stack(stack_pointer,1) = i-1;
@@ -57,12 +85,15 @@ function Struct = clustering(energy, energy0, angle, EQ64, EQ256)
                     break;
                 end;
             end;
+            % если была зафиксирована хотя бы одна точка в области,
+            % обзываем её целью
             if (Struct(struct_size,2) > 0)
                 struct_size = struct_size + 1;
             end;
         end;
     end;
-
+    
+    %деление дальности, скорости и угла цели на суммарную мощность цели
     for i = 1:int32(EQ64*EQ256/2)
         if (Struct(struct_size,2) > 0)
             Struct(i,3) = Struct(i,3)/Struct(i,2);
