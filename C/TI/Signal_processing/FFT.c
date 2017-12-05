@@ -6,7 +6,7 @@
 #define EQ256 16
 #define EQ64  16
 
-#define TIME(A) A = (CpuTimer0Regs.TIM.bit.MSW << 16) + (0xFFFF - CpuTimer0Regs.TIM.bit.LSW)
+#define TIME(A) A = (CpuTimer0Regs.TIM.bit.MSW << 16) |	+ (0xFFFF - CpuTimer0Regs.TIM.bit.LSW)
 
 #define RFFT_STAGES     4 //8
 #define RFFT_SIZE       16 //(1 << RFFT_STAGES)
@@ -74,6 +74,15 @@ void make_signal_2();
 void adaptive_threshold();
 void clustering();
 
+struct Targets
+{
+	num : Uint16;
+	energy: Uint32;
+	dist : float;
+	vel : float;
+	angle : float;
+} Struct;
+
 Uint32 t1 = 0, t2 = 0, dt = 0;
 
 void main(void)
@@ -82,20 +91,14 @@ void main(void)
     timer0_init();
     signal_init_real();
     signal_init_comp();
+	spi_fifo_init();
 
     Uint16 i, j;
-
-    //Uint32 t1 = 0, t2 = 0, dt = 0;
-    //TIME(t1);
-    //
-    //TIME(t2);
-    //dt = t2 - t1;
-    //asm(" ESTOP0");
 
 //Step 1: Calculate rfft(264) x64
     for (i = 0; i < EQ64; i++)
     {
-        make_signal_2();       //input data for A1
+        make_signal_q();       //input data for A1
         RFFT_f32(hnd_rfft);
         for (j = 0; j < EQ256/2; j++) {  //правильно ли?
             A1[i][2*j] = RFFToutBuff[j];    //complex data for A1
@@ -109,7 +112,6 @@ void main(void)
             A2[i][2*j+1] = RFFToutBuff[EQ256 - 1 - j]; //for bit reversing
         }
     }
-    //asm(" ESTOP0");
 //Step 2: Calculate cfft(64) x256
     Uint16 ii = 0;
     for (i = 0; i < EQ256; i++)
@@ -156,6 +158,15 @@ void main(void)
 //Step 4: Clustering
     clustering();
 
+	Uint16 *adrdata = &Struct;
+	Uint16 sdata;	
+	for (i = 0; i < sizeof(Struct); i += 8);
+	{
+		sdata = *adrdata;
+		SpiaRegs.SPITXBUF = sdata;
+		adrdata += 8;		
+	}
+	
     asm(" ESTOP0");
     while(1) {};
 }
@@ -163,9 +174,74 @@ void main(void)
 
 void clustering()
 {
-	// flgoritm
- //   https://habrahabr.ru/post/101338/
+	int i, j, hnn;
+	int Mark[EQ64][EQ256];
+	int struct_size = 1;
+	int ii, jj, i, j, flag;
+	int stack_pointer;
+	for (ii = 0; ii < EQ64; ii++)
+		for (jj = 0; jj < EQ64; jj++)
+			stack_pointer = 1;
+			i = ii;	
+			j = jj;
+			flag = 0;
+			while ( stack_pointer > 0)
+			{
+				if (flag) {
+					i = Stack[stack_pointer][1];
+					j = Stack[stack_pointer][2];
+				}
+				flag = 1;
+				
+				if (j < EQ256 && i < EQ64 && Mark(i,j) == 0 && C(i,j) > 0)
+				{
+					Struct[struct_size][1] = struct_size;
+                    Struct[struct_size][2] += energy0(i,j);                
+                    Struct[struct_size][3] += j*energy0(i,j);
+                    Struct[struct_size][4] += (i - EQ64/2)*energy0(i,j);                
+                    //Struct[struct_size][5] += angle(i,j)*energy0(i,j);
+					
+					Mark[i][j] = 1;             
+                    stack_pointer--;
 
+                    if ( j + 1 < EQ256 && Mark[i][j+1] == 0 && energy[i][j+1] > 0 )
+                    {
+						stack_pointer++;
+                        Stack[stack_pointer][1] = i;
+                        Stack[stack_pointer][2] = j+1;
+					}
+					if ( j - 1 > 0 && Mark[i][j-1] == 0 && energy[i][j-1] > 0 )
+                    {
+						stack_pointer++;
+                        Stack[stack_pointer][1] = i;
+                        Stack[stack_pointer][2] = j-1;
+					}
+					if ( i + 1 < EQ256 && Mark[i+1][j] == 0 && energy[i+1][j] > 0 )
+                    {
+						stack_pointer++;
+                        Stack[stack_pointer][1] = i+1;
+                        Stack[stack_pointer][2] = j;
+					}
+					if ( i -1 > 0 && Mark[i-1][j] == 0 && energy[i-1][j] > 0 )
+                    {
+						stack_pointer++;
+                        Stack[stack_pointer][1] = i-1;
+                        Stack[stack_pointer][2] = j;
+					}
+				}	
+				else
+					break;		
+			}
+			if (Struct[struct_size][2] > 0)
+                struct_size++;
+			
+	for (i = 0; i < EQ256*EQ64/2; i++)
+        if (Struct[struct_size][2]) > 0)
+		{
+            Struct[i][3] /= Struct(i,2);
+            Struct[i][4] /= Struct(i,2);
+            Struct[i][5] /= Struct(i,2);
+		}
 }
 
 void adaptive_threshold()
@@ -400,4 +476,19 @@ void init_fpu()
 
     EINT;   // Enable Global interrupt INTM
     ERTM;   // Enable Global realtime interrupt DBGM
+}
+
+void spi_fifo_init()
+{
+    //
+    // Initialize SPI FIFO registers
+    //
+    SpiaRegs.SPIFFTX.all = 0xE040;
+    SpiaRegs.SPIFFRX.all = 0x2044;
+    SpiaRegs.SPIFFCT.all = 0x0;
+
+    //
+    // Initialize core SPI registers
+    //
+    InitSpi();
 }
