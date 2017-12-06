@@ -1,4 +1,5 @@
-function Struct = clustering(energy, energy0, angle, EQ64, EQ256)
+%function Struct = clustering(energy, energy0, angle, EQ64, EQ256)
+function [Struct, MAT] = clustering(energy, energy0, angle, EQ64, EQ256)
 %	функция кластеризации
 %   выделяет отдельные односвязные области
 %   заполняет структуру данных для каждой области
@@ -17,9 +18,11 @@ function Struct = clustering(energy, energy0, angle, EQ64, EQ256)
 %                           5 - угол до цели, 
 %                           6 - кол-во точек в области (нужно для отладки)  
 
-    Struct(1:int32(EQ64*EQ256/2),1:6) = 0;  % создание структуры с нулями
+    max_struct_size = 2000; % максимальное колличество целей
+    max_stack_pointer = 100; % максимальный размер области памяти для стека
+    Struct(1:max_struct_size,1:6) = 0;  % создание структуры с нулями
     Mark(1:EQ64,1:EQ256) = 0;  % массив, с отметками о пройденных точках
-    Stack(1:EQ256/4*EQ64/4,1:2) = 0;  % массив (стэк), со значениями координат интересных точек
+    Stack(1:max_stack_pointer,1:2) = 0;  % массив (стэк), со значениями координат интересных точек
     struct_size = 1;  % номер цели в структуре
     MAT = energy; % нужно для визуализации кластеризации
     for ii = 1 : EQ64
@@ -87,7 +90,7 @@ function Struct = clustering(energy, energy0, angle, EQ64, EQ256)
             end;
             % если была зафиксирована хотя бы одна точка в области,
             % обзываем её целью
-            if (Struct(struct_size,2) > 0)
+            if (struct_size < max_struct_size && Struct(struct_size,2) > 0)
                 struct_size = struct_size + 1;
             end;
         end;
@@ -95,7 +98,7 @@ function Struct = clustering(energy, energy0, angle, EQ64, EQ256)
     
     %деление дальности, скорости и угла цели на суммарную мощность цели
     for i = 1:int32(EQ64*EQ256/2)
-        if (Struct(struct_size,2) > 0)
+        if (struct_size < max_struct_size && Struct(struct_size,2))
             Struct(i,3) = Struct(i,3)/Struct(i,2);
             Struct(i,4) = Struct(i,4)/Struct(i,2);
             Struct(i,5) = Struct(i,5)/Struct(i,2);

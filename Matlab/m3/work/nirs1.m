@@ -1,6 +1,6 @@
 clear
-EQ256 = 16; % число, эквивалентное 256
-EQ64 = 8; % число, эквивалентное 16
+EQ256 = 256; % число, эквивалентное 256
+EQ64 = 64; % число, эквивалентное 64
 
  % запись двух входных сигналов (тк две антенны)
 [BufferIn1, BufferIn2] = signal(EQ64, EQ256);
@@ -29,4 +29,5 @@ energy = adaptive_filtering(energy0, k, EQ64, EQ256);
 angle = argument(BufferFFTw1, BufferFFTw2, energy, EQ64, EQ256);
 
 % кластеризация и заполнение структуры
-Struct = clustering(energy, energy0, angle, EQ64, EQ256);
+%Struct = clustering(energy, energy0, angle, EQ64, EQ256);
+[Struct,MAT] = clustering(energy, energy0, angle, EQ64, EQ256);
