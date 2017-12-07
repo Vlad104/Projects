@@ -1,5 +1,5 @@
-%function Struct = clustering(energy, energy0, angle, EQ64, EQ256)
-function [Struct, MAT] = clustering(energy, energy0, angle, EQ64, EQ256)
+function Struct = clustering(energy, energy0, angle, EQ64, EQ256)
+%function [Struct, MAT] = clustering(energy, energy0, angle, EQ64, EQ256)
 %	функция кластеризации
 %   выделяет отдельные односвязные области
 %   заполняет структуру данных для каждой области
@@ -18,6 +18,7 @@ function [Struct, MAT] = clustering(energy, energy0, angle, EQ64, EQ256)
 %                           5 - угол до цели, 
 %                           6 - кол-во точек в области (нужно для отладки)  
 
+    %инициализация переменных
     max_struct_size = 2000; % максимальное колличество целей
     max_stack_pointer = 100; % максимальный размер области памяти для стека
     Struct(1:max_struct_size,1:6) = 0;  % создание структуры с нулями
@@ -25,6 +26,7 @@ function [Struct, MAT] = clustering(energy, energy0, angle, EQ64, EQ256)
     Stack(1:max_stack_pointer,1:2) = 0;  % массив (стэк), со значениями координат интересных точек
     struct_size = 1;  % номер цели в структуре
     MAT = energy; % нужно для визуализации кластеризации
+    
     for ii = 1 : EQ64
         for jj = 1 : EQ256
             stack_pointer = 1;  % точка остановки в Stack
@@ -55,7 +57,7 @@ function [Struct, MAT] = clustering(energy, energy0, angle, EQ64, EQ256)
 
                     %проверка точки справа, если она интересная, записываем
                     %её координаты в стэк
-                    if ( j + 1 <= EQ256 && Mark(i, j+1) == 0 && energy(i, j+1) > 0 )  
+                    if ( j + 1 <= EQ256 && Mark(i, j+1) == 0 && energy(i, j+1) > 0 && abs(angle(i,j) - angle(i,j+1)) < 2 )  
                         stack_pointer = stack_pointer + 1;
                         Stack(stack_pointer,1) = i;
                         Stack(stack_pointer,2) = j+1;
@@ -63,7 +65,7 @@ function [Struct, MAT] = clustering(energy, energy0, angle, EQ64, EQ256)
                     
                     %проверка точки слева, если она интересная, записываем
                     %её координаты в стэк
-                    if ( j - 1 >= 1 && Mark(i, j-1) == 0 && energy(i, j-1) > 0 )
+                    if ( j - 1 >= 1 && Mark(i, j-1) == 0 && energy(i, j-1) > 0 && abs(angle(i,j) - angle(i,j-1)) < 2 )
                         stack_pointer = stack_pointer + 1; 
                         Stack(stack_pointer,1) = i;
                         Stack(stack_pointer,2) = j-1;
@@ -71,7 +73,7 @@ function [Struct, MAT] = clustering(energy, energy0, angle, EQ64, EQ256)
 
                     %проверка точки сверху, если она интересная, записываем
                     %её координаты в стэк
-                    if ( i + 1 <= EQ64 && Mark(i+1, j) == 0 && energy(i+1, j) > 0 )
+                    if ( i + 1 <= EQ64 && Mark(i+1, j) == 0 && energy(i+1, j) > 0 && abs(angle(i,j) - angle(i+1,j)) < 2 )
                         stack_pointer = stack_pointer + 1; 
                         Stack(stack_pointer,1) = i+1;
                         Stack(stack_pointer,2) = j;
@@ -79,7 +81,7 @@ function [Struct, MAT] = clustering(energy, energy0, angle, EQ64, EQ256)
 
                     %проверка точки снизу, если она интересная, записываем
                     %её координаты в стэк
-                    if ( i - 1 >= 1 && Mark(i-1, j) == 0 && energy(i-1, j) > 0 )
+                    if ( i - 1 >= 1 && Mark(i-1, j) == 0 && energy(i-1, j) > 0 && abs(angle(i,j) - angle(i-1,j)) < 2 )
                         stack_pointer = stack_pointer + 1; 
                         Stack(stack_pointer,1) = i-1;
                         Stack(stack_pointer,2) = j;
@@ -97,8 +99,8 @@ function [Struct, MAT] = clustering(energy, energy0, angle, EQ64, EQ256)
     end;
     
     %деление дальности, скорости и угла цели на суммарную мощность цели
-    for i = 1:int32(EQ64*EQ256/2)
-        if (struct_size < max_struct_size && Struct(struct_size,2))
+    for i = 1:max_struct_size
+        if (Struct(struct_size,2) > 0)
             Struct(i,3) = Struct(i,3)/Struct(i,2);
             Struct(i,4) = Struct(i,4)/Struct(i,2);
             Struct(i,5) = Struct(i,5)/Struct(i,2);

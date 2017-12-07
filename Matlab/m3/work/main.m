@@ -1,8 +1,11 @@
 clear
-EQ256 = 256; % число, эквивалентное 256
-EQ64 = 64; % число, эквивалентное 64
+EQ256 = 64; % число, эквивалентное 256
+EQ64 = 16; % число, эквивалентное 64
 
- % запись двух входных сигналов (тк две антенны)
+ % запись двух входных сигналов с двух каналов
+ % на вход fft [EQ256][EQ64]
+ % в такой записи fft делается по столбцам
+ % на выходе fft [EQ256][EQ64]
 [BufferIn1, BufferIn2] = signal(EQ64, EQ256);
 
 % БПФ с прореживанием по времени
@@ -20,7 +23,7 @@ BufferFFTw2 = fft(BufferFFTt2(:,:));
 %расчет мощности в каждой точке (сумма модулей соответствующих двух чисел)
 energy0 = abs(BufferFFTw1) + abs(BufferFFTw2);
 
-k = 1; % коэффициент порога
+k = 6; % коэффициент порога
 
 % адаптивная пороговая фильтрация
 energy = adaptive_filtering(energy0, k, EQ64, EQ256);
@@ -29,5 +32,5 @@ energy = adaptive_filtering(energy0, k, EQ64, EQ256);
 angle = argument(BufferFFTw1, BufferFFTw2, energy, EQ64, EQ256);
 
 % кластеризация и заполнение структуры
-%Struct = clustering(energy, energy0, angle, EQ64, EQ256);
-[Struct,MAT] = clustering(energy, energy0, angle, EQ64, EQ256);
+Struct = clustering(energy, energy0, angle, EQ64, EQ256);
+%[Struct,MAT] = clustering(energy, energy0, angle, EQ64, EQ256);
