@@ -71,7 +71,7 @@ function Struct = clustering(energy, energy0, angle, EQ64, EQ256)
                         Stack(stack_pointer,2) = j-1;
                     end;
 
-                    %проверка точки сверху, если она интересная, записываем
+                    %проверка точки снизу, если она интересная, записываем
                     %её координаты в стэк
                     if ( i + 1 <= EQ64 && Mark(i+1, j) == 0 && energy(i+1, j) > 0 && abs(angle(i,j) - angle(i+1,j)) < 2 )
                         stack_pointer = stack_pointer + 1; 
@@ -79,7 +79,7 @@ function Struct = clustering(energy, energy0, angle, EQ64, EQ256)
                         Stack(stack_pointer,2) = j;
                     end;
 
-                    %проверка точки снизу, если она интересная, записываем
+                    %проверка точки сверху, если она интересная, записываем
                     %её координаты в стэк
                     if ( i - 1 >= 1 && Mark(i-1, j) == 0 && energy(i-1, j) > 0 && abs(angle(i,j) - angle(i-1,j)) < 2 )
                         stack_pointer = stack_pointer + 1; 

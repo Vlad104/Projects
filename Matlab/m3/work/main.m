@@ -1,6 +1,6 @@
 clear
-EQ256 = 64; % число, эквивалентное 256
-EQ64 = 16; % число, эквивалентное 64
+EQ256 = 256; % число, эквивалентное 256
+EQ64 = 64; % число, эквивалентное 64
 
  % запись двух входных сигналов с двух каналов
  % на вход fft [EQ256][EQ64]
@@ -34,3 +34,5 @@ angle = argument(BufferFFTw1, BufferFFTw2, energy, EQ64, EQ256);
 % кластеризация и заполнение структуры
 Struct = clustering(energy, energy0, angle, EQ64, EQ256);
 %[Struct,MAT] = clustering(energy, energy0, angle, EQ64, EQ256);
+
+surfc(energy0); % построение 3D графика распределения мощностей
