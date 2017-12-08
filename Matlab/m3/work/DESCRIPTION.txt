@@ -1,0 +1,22 @@
+﻿Пояснения:
+
+main.m 				 - основной скипт, из него происходит вызов всех функций
+adaptive_filtering.m 		 - функция пороговой фильтрации входной матрицы
+clustering.m 		 	 - функция кластеризации (в данном случае выделения односвязных областей)
+				   внутри функции происходит заполнение структуры информации о целях
+argument.m 			 - функция расчета угла
+signal.m			 - модель двух входных сигналов
+
+остальные файлы - вспомогательные при написании кода
+
+
+Description:
+
+main.m 				 - main skipt, from it all functions are called
+adaptive_filtering.m 		 - threshold filtering function of the input matrix
+clustering.m 			 - the function of clustering (in this case the selection of simply connected regions)
+				   within the function, the structure of information about the objectives is filled
+argument.m			 - angle calculation function
+signal.m 			 - model of two input signals
+
+The rest of the files are helper while writing the code
