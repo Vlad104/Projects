@@ -90,6 +90,8 @@ void adaptive_threshold();
 void argument();
 void clustering();
 void clustering_init(Uint16 * Stack[][EQ256], Uint16 * Mark[][2]);
+void fft_t();
+void fft_w();
 
 Uint32 t1 = 0, t2 = 0, dt = 0;
 
@@ -100,8 +102,8 @@ void main(void)
     signal_init_real();
     signal_init_comp();
 
-    //Uint32 t1 = 0, t2 = 0, dt = 0;
-    //TIME(t1);
+    Uint32 t1 = 0, t2 = 0, dt = 0;
+    TIME(t1);
     //
     //TIME(t2);
     //dt = t2 - t1;
@@ -114,6 +116,13 @@ void main(void)
     adaptive_threshold(); //Step 3: Treshold
 
     clustering(); //Step 4: Clustering
+
+    //Uint32 t1 = 0, t2 = 0, dt = 0;
+    //TIME(t1);
+    //
+    TIME(t2);
+    dt = t2 - t1;
+    asm(" ESTOP0");
 
     asm(" ESTOP0");
     while(1) {};
@@ -328,33 +337,33 @@ void clustering()
                 if ( j < EQ256-1 && i < EQ64/2-1 && Mark[i][j] == 0 && Energy[i][j] > 0 )
                 {
                     Struct[cluster]->cluster = cluster;
-                    Struct[cluster]->energy += Energy_0(i,j);
-                    Struct[cluster]->distance += j*Energy_0(i,j);
-                    Struct[cluster]->velocity += (i - EQ64/4)*Energy_0(i,j);
-                    Struct[cluster]->angle += Angle(i,j)*Energy_0(i,j);
+                    Struct[cluster]->energy += Energy_0[i][j];
+                    Struct[cluster]->distance += j*Energy_0[i][j];
+                    Struct[cluster]->velocity += (i - EQ64/4)*Energy_0[i][j];
+                    Struct[cluster]->angle += Angle[i][j]*Energy_0[i][j];
 
                     Mark[i][j] = 1;
                     stack_pointer--;
 
-                    if ( j + 1 < EQ256 && Mark[i][j+1] == 0 && Energy[i][j+1] > 0 ) // добавить условие угла
+                    if ( j + 1 < EQ256 && Mark[i][j+1] == 0 && Energy[i][j+1] > 0 ) // && abs(Angle[i][j] - Angle[i][j+1]) < 2 )
                     {
                         stack_pointer++;
                         Stack[stack_pointer][0] = i;
                         Stack[stack_pointer][1] = j+1;
                     }
-                    if ( j - 1 >= 0 && Mark[i][j-1] == 0 && Energy[i][j-1] > 0 )
+                    if ( j - 1 >= 0 && Mark[i][j-1] == 0 && Energy[i][j-1] > 0 ) // && abs(Angle[i][j] - Angle[i][j-1]) < 2 )
                     {
                         stack_pointer++;
                         Stack[stack_pointer][0] = i;
                         Stack[stack_pointer][1] = j-1;
                     }
-                    if ( i + 1 < EQ64/2 && Mark[i+1][j] == 0 && Energy[i+1][j] > 0 )
+                    if ( i + 1 < EQ64/2 && Mark[i+1][j] == 0 && Energy[i+1][j] > 0 ) // && abs(Angle[i][j] - Angle[i+1][j]) < 2 )
                     {
                         stack_pointer++;
                         Stack[stack_pointer][0] = i+1;
                         Stack[stack_pointer][1] = j;
                     }
-                    if ( i -1 >= 0 && Mark[i-1][j] == 0 && Energy[i-1][j] > 0 )
+                    if ( i -1 >= 0 && Mark[i-1][j] == 0 && Energy[i-1][j] > 0 ) // && abs(Angle[i][j] - Angle[i-1][j]) < 2 )
                     {
                         stack_pointer++;
                         Stack[stack_pointer][0] = i-1;
@@ -364,16 +373,16 @@ void clustering()
                 else
                     break;
             }
-            if (cluster < MAX_STUCT_SIZE && Struct[cluster].energy > 0)
+            if (cluster < MAX_STRUCT_SIZE && Struct[cluster]->energy > 0)
                 cluster++;
         }
 
-    for (i = 0; i < MAX_STUCT_SIZE; i++)
-        if (Struct[cluster].energy) > 0)
+    for (i = 0; i < MAX_STRUCT_SIZE; i++)
+        if (Struct[cluster]->energy > 0)
         {
-            Struct[i][3] /= Struct(i,2);
-            Struct[i][4] /= Struct(i,2);
-            Struct[i][5] /= Struct(i,2);
+            Struct[i]->distance /= Struct[i]->energy;
+            Struct[i]->velocity /= Struct[i]->energy;
+            Struct[i]->angle /= Struct[i]->energy;
         }
 }
 
