@@ -10,18 +10,25 @@ function [S1, S2] = signal(EQ64, EQ256)
     I = Tm/kk; %количество отсчетов в одном периоде пилы
     
     % ÷≈Ћ№ 1
-    fd = 2000; %частота доплера    
+    fd1 = 2000; %частота доплера    
     R1 = 100; %дальность до цели
     tau1 = 2*R1/c; %
     fb1 = B*tau1/Tm; %
-    J = ceil(tau1/kk); %задержка в осчетах модели
+    J1 = tau1/kk; %задержка в осчетах модели
 
     % ÷≈Ћ№ 2
     fd2 = 1000; %частота доплера
     R2 = 120;
     tau2 = 2*R2/c;
     fb2 = B*tau2/Tm;
-    J2 = ceil(tau2/kk);
+    J2 = tau2/kk;
+    
+    % ÷≈Ћ№ 3
+    fd3 = 4000; %частота доплера
+    R3 = 180;
+    tau3 = 2*R3/c;
+    fb3 = B*tau3/Tm;
+    J3 = tau3/kk;
 
     %ћодель сигнала
     b = B/Tm; %коэффициент Ћ„ћ
@@ -32,11 +39,13 @@ function [S1, S2] = signal(EQ64, EQ256)
     %1 канал
     for i=0:1:I-1
         for j = 0:1:FF-1
-        %ZOND(i+1,j+1) = sin(2*pi*kk*(i+J)+pi*b*((i+J)*kk)^2); %модель зондирующего сигнала
-        ZOND(i+1,j+1) = sin(2*pi*kk*(i+J)+pi*b*((i+J)*kk)^2) + sin(2*pi*kk*(i+J2)+pi*b*((i+J2)*kk)^2); %модель зондирующего сигнала 2 цели
-        %S1_RX(i+1,j+1) = 1*(sin(2*pi*((i)*kk)+pi*b*((i)*kk)^2+2*pi*fd*j*Tm+(mu+sigma.*randn(1,1)))+RAND); %модель прин€того сигнала
-        S1_RX(i+1,j+1) = 1*(sin(2*pi*((i)*kk)+pi*b*((i)*kk)^2+2*pi*fd*j*Tm+(mu+sigma.*randn(1,1)))+RAND) + 1*(sin(2*pi*((i)*kk)+pi*b*((i)*kk)^2+2*pi*fd2*j*Tm+(mu+sigma.*randn(1,1)))+RAND); %модель прин€того сигнала 2 цели                                                                            %с доплеровской частотой и задержкой
-        S1_SM(i+1,j+1)=(ZOND(i+1,j+1)*S1_RX(i+1,j+1)); %модель сигнала с выхода смесител€
+            ZOND(i+1,j+1) = sin(2*pi*kk*i + pi*b*(i*kk)^2); %модель зондирующего сигнала        
+            
+            S1_RX(i+1,j+1) = sin(2*pi*(i+J1)*kk + pi*b*((i+J1)*kk)^2 + 2*pi*fd1*j*Tm + (mu+sigma.*randn(1,1))) + RAND; %модель прин€того сигнала ÷≈Ћ№ 1
+            S1_RX(i+1,j+1) = S1_RX(i+1,j+1) + sin(2*pi*(i+J2)*kk + pi*b*((i+J2)*kk)^2 + 2*pi*fd2*j*Tm + (mu+sigma.*randn(1,1))) + RAND; %модель прин€того сигнала ÷≈Ћ№ 2  
+            S1_RX(i+1,j+1) = S1_RX(i+1,j+1) + sin(2*pi*(i+J3)*kk + pi*b*((i+J3)*kk)^2 + 2*pi*fd3*j*Tm + (mu+sigma.*randn(1,1))) + RAND; %модель прин€того сигнала ÷≈Ћ№ 3  
+                        
+            S1_SM(i+1,j+1)=(ZOND(i+1,j+1)*S1_RX(i+1,j+1)); %модель сигнала с выхода смесител€
         end;
     end;
     
@@ -55,8 +64,10 @@ function [S1, S2] = signal(EQ64, EQ256)
     for i=0:1:I-1
         for j = 0:1:FF-1
         %ћќƒ≈Ћ№ «ќЌƒ»–”ёў≈√ќ —»√ЌјЋј “ј ∆≈
-        %S2_RX(i+1,j+1) = exp(l*fi2)*sin(2*pi*(i+1)*kk+pi*b*((i+1)*kk)^(2)+2*pi*fd*(j+1)*Tm+RAND)+RAND; %модель прин€того сигнала
-        S2_RX(i+1,j+1) = exp(l*fi2)*sin(2*pi*(i+1)*kk+pi*b*((i+1)*kk)^(2)+2*pi*fd*(j+1)*Tm+RAND)+RAND + exp(l*fi2)*sin(2*pi*(i+1)*kk+pi*b*((i+1)*kk)^(2)+2*pi*fd2*(j+1)*Tm+RAND); %модель прин€того сигнала 2 цели                                                                           %с доплеровской частотой и задержкой
+        S2_RX(i+1,j+1) = exp(l*fi2)*sin(2*pi*(i+1+J1)*kk + pi*b*((i+1+J1)*kk)^2 + 2*pi*fd1*(j+1)*Tm+RAND)+RAND; %модель прин€того сигнала ÷≈Ћ№ 1
+        S2_RX(i+1,j+1) = S2_RX(i+1,j+1) + exp(l*fi2)*sin(2*pi*(i+1+J2)*kk + pi*b*((i+1+J2)*kk)^2 + 2*pi*fd2*(j+1)*Tm+RAND)+RAND; %модель прин€того сигнала ÷≈Ћ№ 2 
+        S2_RX(i+1,j+1) = S2_RX(i+1,j+1) + exp(l*fi2)*sin(2*pi*(i+1+J3)*kk + pi*b*((i+1+J3)*kk)^2 + 2*pi*fd3*(j+1)*Tm+RAND)+RAND; %модель прин€того сигнала ÷≈Ћ№ 3 
+        
         S2_SM(i+1,j+1)=(ZOND(i+1,j+1)*S2_RX(i+1,j+1)); %модель сигнала с выхода смесител€
         end;
     end;

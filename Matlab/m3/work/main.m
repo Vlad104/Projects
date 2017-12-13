@@ -25,7 +25,7 @@ BufferFFTt2 = BufferFFTt2';
 BufferFFTw1 = fft(BufferFFTt1(:,:));
 BufferFFTw2 = fft(BufferFFTt2(:,:));
 
-%расчет мощности в каждой точке (сумма модулей соответствующих двух чисел)
+% расчет мощности в каждой точке (сумма модулей соответствующих двух чисел)
 energy0 = abs(BufferFFTw1) + abs(BufferFFTw2);
 
 k = 6; % коэффициент порога
@@ -38,7 +38,7 @@ angle = argument(BufferFFTw1, BufferFFTw2, energy, EQ64, EQ256/2);
 
 % кластеризация и заполнение структуры
 Struct = clustering(energy, energy0, angle, EQ64, EQ256/2);
-%[Struct,MAT] = clustering(energy, energy0, angle, EQ64, EQ256);
+% [Struct,MAT] = clustering(energy, energy0, angle, EQ64, EQ256);
 
 surfc(energy0); % построение 3D графика распределения мощностей
 title('Цели');
