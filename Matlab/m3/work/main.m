@@ -40,7 +40,7 @@ angle = argument(BufferFFTw1, BufferFFTw2, energy, EQ64, EQ256/2);
 Struct = clustering(energy, energy0, angle, EQ64, EQ256/2);
 % [Struct,MAT] = clustering(energy, energy0, angle, EQ64, EQ256);
 
-surfc(energy); % построение 3D графика распределения мощностей
-title('Цели');
-xlabel('Дальность');
-ylabel('Скорость');
+surfc(energy); % построение 3D графика распределения мощностей\
+title('Распределение мощностей принятых сигналов');
+xlabel('Дальностный канал. Дальность = N*3, м');
+ylabel('Скоростной канал. Относительная скорость = N*0.78125, м');
