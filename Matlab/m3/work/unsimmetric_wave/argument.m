@@ -19,8 +19,8 @@ function angle = argument(BufferFFTw1, BufferFFTw2, energy, EQ64, EQ256)
                 angle(i,j) = atan( imag(BufferFFTw1(i,j))/real(BufferFFTw1(i,j)) ) - atan( imag(BufferFFTw2(i,j))/real(BufferFFTw2(i,j)) );
             else
                 % можно убрать else, но он нужен при реализации на Си
-                %angle(i,j) = 0;
-                angle(i,j) = atan( imag(BufferFFTw1(i,j))/real(BufferFFTw1(i,j)) ) - atan( imag(BufferFFTw2(i,j))/real(BufferFFTw2(i,j)) );
+                angle(i,j) = 0;
+                %angle(i,j) = atan( imag(BufferFFTw1(i,j))/real(BufferFFTw1(i,j)) ) - atan( imag(BufferFFTw2(i,j))/real(BufferFFTw2(i,j)) );
             end;            
         end;
     end;

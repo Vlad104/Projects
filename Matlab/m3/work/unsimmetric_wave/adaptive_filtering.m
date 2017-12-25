@@ -25,66 +25,117 @@ function energy = adaptive_filtering(energy0, k, EQ64, EQ256)
                     energy(i,j) = 0;
                 end;
             end;    
-            if (j <= 2)  % для крайней левой точки
+            if (j == 1)  % для крайней левой точки
+                S1 = energy0(i,EQ256-4) + energy0(i,EQ256-3) + energy0(i,EQ256-2);
+                S1 = S1/3;
                 S2 = energy0(i,j+3) + energy0(i,j+4) + energy0(i,j+5);
                 S2 = S2/3;
-                if (k*S2 < energy0(i,j))
+                if ( ( (k*S1 < energy0(i,j)) && (k*S2 < energy0(i,j)) ) )
                     energy(i,j) = energy0(i,j);
                 else
                     energy(i,j) = 0;
                 end;
-            end;    
-            if (j >= EQ256-2)  % для крайней правой точки
+            end;  
+            if (j == 2)
+                S1 = energy0(i,EQ256-3) + energy0(i,EQ256-2) + energy0(i,EQ256-1);
+                S1 = S1/3;
+                S2 = energy0(i,j+3) + energy0(i,j+4) + energy0(i,j+5);
+                S2 = S2/3;
+                if ( ( (k*S1 < energy0(i,j)) && (k*S2 < energy0(i,j)) ) )
+                    energy(i,j) = energy0(i,j);
+                else
+                    energy(i,j) = 0;
+                end;
+            end;
+            if (j == 3)
+                S1 = energy0(i,EQ256-2) + energy0(i,EQ256-1) + energy0(i,EQ256-0);
+                S1 = S1/3;
+                S2 = energy0(i,j+3) + energy0(i,j+4) + energy0(i,j+5);
+                S2 = S2/3;
+                if ( ( (k*S1 < energy0(i,j)) && (k*S2 < energy0(i,j)) ) )
+                    energy(i,j) = energy0(i,j);
+                else
+                    energy(i,j) = 0;
+                end;
+            end;            
+            if (j == 4)
+                S1 = energy0(i,EQ256-1) + energy0(i,EQ256-0) + energy0(i,1);
+                S1 = S1/3;
+                S2 = energy0(i,j+3) + energy0(i,j+4) + energy0(i,j+5);
+                S2 = S2/3;
+                if ( ( (k*S1 < energy0(i,j)) && (k*S2 < energy0(i,j)) ) )
+                    energy(i,j) = energy0(i,j);
+                else
+                    energy(i,j) = 0;
+                end;
+            end;            
+            if (j == 5)
+                S1 = energy0(i,EQ256-0) + energy0(i,1) + energy0(i,2);
+                S1 = S1/3;
+                S2 = energy0(i,j+3) + energy0(i,j+4) + energy0(i,j+5);
+                S2 = S2/3;
+                if ( ( (k*S1 < energy0(i,j)) && (k*S2 < energy0(i,j)) ) )
+                    energy(i,j) = energy0(i,j);
+                else
+                    energy(i,j) = 0;
+                end;
+            end;
+            
+            if (j == EQ256-0)  % для крайней правой точки
                 S1 = energy0(i,j-5) + energy0(i,j-4) + energy0(i,j-3);
                 S1 = S1/3;
-                if (k*S1 < energy0(i,j))
+                S2 = energy0(i,3) + energy0(i,4) + energy0(i,5);
+                S2 = S2/3;
+                if ( ( (k*S1 < energy0(i,j)) && (k*S2 < energy0(i,j)) ) )
                     energy(i,j) = energy0(i,j);
                 else
                     energy(i,j) = 0;
                 end;
             end; 
-            if (j == 4)
-                S1 = energy0(i,j-3);
-                S2 = energy0(i,j+3) + energy0(i,j+4) + energy0(i,j+5);
+            if (j == EQ256-1)
+                S1 = energy0(i,j-5) + energy0(i,j-4) + energy0(i,j-3);
+                S1 = S1/3;
+                S2 = energy0(i,2) + energy0(i,3) + energy0(i,4);
                 S2 = S2/3;
-                if ( (k*S1 < energy0(i,j)) && (k*S2 < energy0(i,j)) )
-                    energy(i,j) = energy0(i,j);
-                else
-                    energy(i,j) = 0;
-                end;
-            end;         
-            if (j == 5)
-                S1 = energy0(i,j-4) + energy0(i,j-3);
-                S1 = S1/2;
-                S2 = energy0(i,j+3) + energy0(i,j+4) + energy0(i,j+5);
-                S2 = S2/3;
-                if ( (k*S1 < energy0(i,j)) && (k*S2 < energy0(i,j)) )
+                if ( ( (k*S1 < energy0(i,j)) && (k*S2 < energy0(i,j)) ) )
                     energy(i,j) = energy0(i,j);
                 else
                     energy(i,j) = 0;
                 end;
             end;
-            if (j == EQ256 - 3)
+            if (j == EQ256-2)  
                 S1 = energy0(i,j-5) + energy0(i,j-4) + energy0(i,j-3);
                 S1 = S1/3;
-                S2 = energy0(i,j+3);
-                if ( (k*S1 < energy0(i,j)) && (k*S2 < energy0(i,j)) )
+                S2 = energy0(i,1) + energy0(i,2) + energy0(i,3);
+                S2 = S2/3;
+                if ( ( (k*S1 < energy0(i,j)) && (k*S2 < energy0(i,j)) ) )
                     energy(i,j) = energy0(i,j);
                 else
                     energy(i,j) = 0;
                 end;
-            end;
-            if (j == EQ256 - 4)
+            end;             
+            if (j == EQ256-3)  
                 S1 = energy0(i,j-5) + energy0(i,j-4) + energy0(i,j-3);
                 S1 = S1/3;
-                S2 = energy0(i,j+3) + energy0(i,j+4);
-                S2 = S2/2;
-                if ( (k*S1 < energy0(i,j)) && (k*S2 < energy0(i,j)) )
+                S2 = energy0(i,EQ256-0) + energy0(i,1) + energy0(i,2);
+                S2 = S2/3;
+                if ( ( (k*S1 < energy0(i,j)) && (k*S2 < energy0(i,j)) ) )
                     energy(i,j) = energy0(i,j);
                 else
                     energy(i,j) = 0;
                 end;
-            end;      
-        end;
+            end;            
+            if (j == EQ256-4)  
+                S1 = energy0(i,j-5) + energy0(i,j-4) + energy0(i,j-3);
+                S1 = S1/3;
+                S2 = energy0(i,EQ256-1) + energy0(i,EQ256-0) + energy0(i,1);
+                S2 = S2/3;
+                if ( ( (k*S1 < energy0(i,j)) && (k*S2 < energy0(i,j)) ) )
+                    energy(i,j) = energy0(i,j);
+                else
+                    energy(i,j) = 0;
+                end;
+            end;             
+        end;      
     end;
 end

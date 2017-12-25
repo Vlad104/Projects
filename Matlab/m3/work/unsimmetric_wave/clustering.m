@@ -47,8 +47,9 @@ function Struct = clustering(energy, energy0, angle, Rd, Vd, EQ64, EQ256)
 
                     Struct(struct_size,1) = struct_size; % номер области
                     Struct(struct_size,2) = Struct(struct_size,2) + energy(i,j); % мощность области                
-                    Struct(struct_size,3) = Struct(struct_size,3) + j*energy(i,j); % дальность до цели 
-                    Struct(struct_size,4) = Struct(struct_size,4) + (i - EQ64/2)*energy(i,j); % относительная скорость цели                
+                    Struct(struct_size,3) = Struct(struct_size,3) + j*energy(i,j); % дальность до цели                     
+                    Struct(struct_size,4) = Struct(struct_size,4) + (i - EQ64/2)*energy(i,j); % относительная скорость цели       
+                    %Struct(struct_size,4) = Struct(struct_size,4) + (i)*energy(i,j); % относительная скорость цели                
                     Struct(struct_size,5) = Struct(struct_size,5) + angle(i,j)*energy(i,j); % угол до цели
                     Struct(struct_size,6) = Struct(struct_size,6) + 1; % кол-во точек в области (нужно для отладки)
 
@@ -104,6 +105,8 @@ function Struct = clustering(energy, energy0, angle, Rd, Vd, EQ64, EQ256)
         if (Struct(i,2) > 0)
             Struct(i,3) = Rd*Struct(i,3)/Struct(i,2); %*Rd
             Struct(i,4) = Vd*Struct(i,4)/Struct(i,2); %*Vd
+            %Struct(i,3) = Struct(i,3)/Struct(i,2); %*Rd
+            %Struct(i,4) = Struct(i,4)/Struct(i,2); %*Vd
             Struct(i,5) = Struct(i,5)/Struct(i,2);
         end;
     end;

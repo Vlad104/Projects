@@ -8,7 +8,7 @@ EQ64 = 64; % число, эквивалентное 64
  % на вход fft [EQ256][EQ64]
  % в такой записи fft делается по столбцам
  % на выходе fft [EQ256][EQ64]
-[BufferIn1, BufferIn2, Rd, Vd] = signal_target4(EQ64, EQ256);
+[BufferIn1, BufferIn2, Rd, Vd] = signal_target1(EQ64, EQ256);
 
 % БПФ с прореживанием по времени
 BufferFFTt1 = fft(BufferIn1);
