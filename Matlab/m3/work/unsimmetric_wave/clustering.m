@@ -1,4 +1,4 @@
-function Struct = clustering(energy, energy0, angle, EQ64, EQ256)
+function Struct = clustering(energy, energy0, angle, Rd, Vd, EQ64, EQ256)
 %function [Struct, MAT] = clustering(energy, energy0, angle, EQ64, EQ256)
 %	функция кластеризации
 %   выделяет отдельные односвязные области
@@ -8,6 +8,7 @@ function Struct = clustering(energy, energy0, angle, EQ64, EQ256)
 %         значением выше порога и 0 в точках ниже порога
 %       - energy0 - матрица EQ64хEQ256 значений мощности в каждой точке
 %       - angle - угол, в каждой точке
+%       - Rd и Vd - разрешение по дальности и скорости соответственно
 %       - EQ256 и EQ64 - эквиваленты чисел 256 и 64 соответственног
 %   выход:
 %       - struct - структура:
@@ -101,8 +102,8 @@ function Struct = clustering(energy, energy0, angle, EQ64, EQ256)
     %деление дальности, скорости и угла цели на суммарную мощность цели
     for i = 1:max_struct_size
         if (Struct(i,2) > 0)
-            Struct(i,3) = Struct(i,3)/Struct(i,2);
-            Struct(i,4) = Struct(i,4)/Struct(i,2);
+            Struct(i,3) = Rd*Struct(i,3)/Struct(i,2); %*Rd
+            Struct(i,4) = Vd*Struct(i,4)/Struct(i,2); %*Vd
             Struct(i,5) = Struct(i,5)/Struct(i,2);
         end;
     end;
