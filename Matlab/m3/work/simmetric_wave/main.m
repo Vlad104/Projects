@@ -1,9 +1,7 @@
 clear
-EQ256 = 256; % число, эквивалентное 256
-EQ64 = 8; % число, эквивалентное 8
+EQ256 = 256; % число, эквивалентное 256 каналы по дальности
+EQ64 = 8; % число, эквивалентное 8 !! каналы по углу
 
- % запись двух входных сигналов с двух каналов
- % на вход fft [EQ256][EQ64]
  % в такой записи fft делается по столбцам
  % на выходе fft [EQ256][EQ64]
 [BufferIn, Rd] = signal_target1(EQ64, EQ256);
@@ -27,7 +25,7 @@ energy0 = abs(BufferFFTw);
 k = 6; % коэффициент порога
 
 % адаптивная пороговая фильтрация
-%energy = adaptive_filtering(energy0, k, EQ64, EQ256/2);
+energy = adaptive_filtering(energy0, k, EQ64, EQ256/2);
 
 % кластеризация и заполнение структуры
-%Struct = clustering(energy, energy0, angle, Rd, Vd, EQ64, EQ256/2);
+Struct = clustering(energy, energy0, Rd, EQ64, EQ256/2);

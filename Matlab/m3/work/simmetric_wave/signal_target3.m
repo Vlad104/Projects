@@ -18,6 +18,20 @@ function [S, Rd] = signal_target1(EQ64, EQ256)
     tau1 = 2*R1/c; %
     fb1 = B*tau1/Tm; %
     J1 = tau1/kk; %задержка в осчетах модели
+    
+    % ЦЕЛЬ 2
+    fd2 = 3000; %частота доплера    
+    R2 = 200; %дальность до цели
+    tau2 = 2*R2/c; %
+    fb2 = B*tau2/Tm; %
+    J2 = tau2/kk; %задержка в осчетах модели
+    
+    % ЦЕЛЬ 3
+    fd3 = -3000; %частота доплера    
+    R3 = 300; %дальность до цели
+    tau3 = 2*R3/c; %
+    fb3 = B*tau3/Tm; %
+    J3 = tau3/kk; %задержка в осчетах модели
 
     %Модель зондирующих сигналов
     b = B/Tm; %коэффициент ЛЧМ
@@ -40,14 +54,18 @@ function [S, Rd] = signal_target1(EQ64, EQ256)
     fi2=pi*25/180;
     % принятый первый зондирующий сигнал
     for i=0:1:I/2-1 %нарастание
-        freq = 2*pi*kk*(i+J1)*f0 + pi*b*((i+J1)*kk)^2; %+ 2*pi*fd1*Tm;
+        freq = 2*pi*kk*(i+J1)*f0 + pi*b*((i+J1)*kk)^2; %+ 2*pi*fd1*Tm;    %Цель1      
+        freq = 2*pi*kk*(i+J2)*f0 + pi*b*((i+J2)*kk)^2; %+ 2*pi*fd2*Tm;    %Цель2           
+        freq = 2*pi*kk*(i+J3)*f0 + pi*b*((i+J3)*kk)^2; %+ 2*pi*fd3*Tm;    %Цель3   
         S11_RX(i+1) = exp( fi2*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 1 антенне
         S12_RX(i+1) = exp( fi1*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 2 антенне
         S13_RX(i+1) = exp(-fi1*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 3 антенне 
         S14_RX(i+1) = exp(-fi2*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 4 антенне
     end;             %спад
     for i=I/2:1:I-1
-        freq = - 2*pi*kk*(i+J1)*f0 - pi*b*((i+J1)*kk)^2; %+ 2*pi*fd1*Tm;
+        freq = -2*pi*kk*(i+J1)*f0 - pi*b*((i+J1)*kk)^2; %+ 2*pi*fd1*Tm;    %Цель1      
+        freq = -2*pi*kk*(i+J2)*f0 - pi*b*((i+J2)*kk)^2; %+ 2*pi*fd2*Tm;    %Цель2           
+        freq = -2*pi*kk*(i+J3)*f0 - pi*b*((i+J3)*kk)^2; %+ 2*pi*fd3*Tm;    %Цель3
         S11_RX(i+1) = exp( fi2*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 1 антенне
         S12_RX(i+1) = exp( fi1*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 2 антенне
         S13_RX(i+1) = exp(-fi1*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 3 антенне 
@@ -88,5 +106,5 @@ function [S, Rd] = signal_target1(EQ64, EQ256)
     end;
     while (size(S,1) > EQ256) % если пересчет дал больше 256 точек
     	S(size(S,1),:) = []; %модель сигнала после АЦП
-    end;  
+    end;   
 end

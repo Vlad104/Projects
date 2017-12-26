@@ -31,8 +31,8 @@
         ZOND_2(i+1) = exp(-fi*l)*sin(2*pi*(kk*i+Tm)*f0 + pi*b*(i*kk+Tm)^2); %модель зондирующего сигнала
     end;    
     for i=I/2:1:I-1
-        ZOND_1(i+1) = exp( fi*l)*sin(2*pi*kk*i*f0 - pi*b*(i*kk)^2); %модель зондирующего сигнала 
-        ZOND_2(i+1) = exp(-fi*l)*sin(2*pi*(kk*i+Tm)*f0 - pi*b*(i*kk+Tm)^2); %модель зондирующего сигнала
+        ZOND_1(i+1) = exp( fi*l)*sin(-2*pi*kk*i*f0 - pi*b*(i*kk)^2); %модель зондирующего сигнала 
+        ZOND_2(i+1) = exp(-fi*l)*sin(-2*pi*(kk*i+Tm)*f0 - pi*b*(i*kk+Tm)^2); %модель зондирующего сигнала
     end;            %спад
     %модель принятых сигналов
     mu=0; %мат.ожидание
@@ -40,31 +40,47 @@
     RAND=(mu+sigma.*randn(1,1));
     fi1=pi*5/180;
     fi2=pi*25/180;
+    % принятый первый зондирующий сигнал
     for i=0:1:I/2-1 %нарастание
         freq = 2*pi*kk*(i+J1)*f0 + pi*b*((i+J1)*kk)^2; %+ 2*pi*fd1*Tm;
-        S1_RX(i+1) = exp( fi2*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 1 антенне
-        S2_RX(i+1) = exp( fi1*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 2 антенне
-        S3_RX(i+1) = exp(-fi1*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 3 антенне 
-        S4_RX(i+1) = exp(-fi2*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 4 антенне
+        S11_RX(i+1) = exp( fi2*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 1 антенне
+        S12_RX(i+1) = exp( fi1*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 2 антенне
+        S13_RX(i+1) = exp(-fi1*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 3 антенне 
+        S14_RX(i+1) = exp(-fi2*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 4 антенне
     end;             %спад
     for i=I/2:1:I-1
-        freq = 2*pi*kk*(i+J1)*f0 - pi*b*((i+J1)*kk)^2; %+ 2*pi*fd1*Tm;
-        S1_RX(i+1) = exp( fi2*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 1 антенне
-        S2_RX(i+1) = exp( fi1*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 2 антенне
-        S3_RX(i+1) = exp(-fi1*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 3 антенне 
-        S4_RX(i+1) = exp(-fi2*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 4 антенне
+        freq = - 2*pi*kk*(i+J1)*f0 - pi*b*((i+J1)*kk)^2; %+ 2*pi*fd1*Tm;
+        S11_RX(i+1) = exp( fi2*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 1 антенне
+        S12_RX(i+1) = exp( fi1*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 2 антенне
+        S13_RX(i+1) = exp(-fi1*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 3 антенне 
+        S14_RX(i+1) = exp(-fi2*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 4 антенне
+    end;
+    % принятый второй зондирующий сигнал
+    for i=0:1:I/2-1 %нарастание
+        freq = 2*pi*(kk*(i+J1)+Tm)*f0 + pi*b*((i+J1)*kk+Tm)^2; %+ 2*pi*fd1*Tm;
+        S21_RX(i+1) = exp( fi2*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 1 антенне
+        S22_RX(i+1) = exp( fi1*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 2 антенне
+        S23_RX(i+1) = exp(-fi1*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 3 антенне 
+        S24_RX(i+1) = exp(-fi2*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 4 антенне
+    end;             %спад
+    for i=I/2:1:I-1
+        freq = - 2*pi*(kk*(i+J1)+Tm)*f0 - pi*b*((i+J1)*kk+Tm)^2; %+ 2*pi*fd1*Tm;
+        S21_RX(i+1) = exp( fi2*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 1 антенне
+        S22_RX(i+1) = exp( fi1*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 2 антенне
+        S23_RX(i+1) = exp(-fi1*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 3 антенне 
+        S24_RX(i+1) = exp(-fi2*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 4 антенне
     end;
     
     %сигнал на выходе смесителя
     for i=0:1:I-1
-        S_SM(i+1,1) = ZOND_1(i+1)*S1_RX(i+1); %модель сигнала с выхода смесителя
-        S_SM(i+1,2) = ZOND_1(i+1)*S2_RX(i+1); %модель сигнала с выхода смесителя
-        S_SM(i+1,3) = ZOND_1(i+1)*S3_RX(i+1); %модель сигнала с выхода смесителя
-        S_SM(i+1,4) = ZOND_1(i+1)*S4_RX(i+1); %модель сигнала с выхода смесителя
-        S_SM(i+1,5) = ZOND_2(i+1)*S1_RX(i+1); %модель сигнала с выхода смесителя
-        S_SM(i+1,6) = ZOND_2(i+1)*S2_RX(i+1); %модель сигнала с выхода смесителя
-        S_SM(i+1,7) = ZOND_2(i+1)*S3_RX(i+1); %модель сигнала с выхода смесителя
-        S_SM(i+1,8) = ZOND_2(i+1)*S4_RX(i+1); %модель сигнала с выхода смесителя
+        S_SM(i+1,1) = ZOND_1(i+1)*S11_RX(i+1); %модель сигнала с выхода смесителя
+        S_SM(i+1,2) = ZOND_1(i+1)*S12_RX(i+1); %модель сигнала с выхода смесителя
+        S_SM(i+1,3) = ZOND_1(i+1)*S13_RX(i+1); %модель сигнала с выхода смесителя
+        S_SM(i+1,4) = ZOND_1(i+1)*S14_RX(i+1); %модель сигнала с выхода смесителя
+        S_SM(i+1,5) = ZOND_2(i+1)*S21_RX(i+1); %модель сигнала с выхода смесителя
+        S_SM(i+1,6) = ZOND_2(i+1)*S22_RX(i+1); %модель сигнала с выхода смесителя
+        S_SM(i+1,7) = ZOND_2(i+1)*S23_RX(i+1); %модель сигнала с выхода смесителя
+        S_SM(i+1,8) = ZOND_2(i+1)*S24_RX(i+1); %модель сигнала с выхода смесителя
     end;
 
     rsm_p = 2; % нужно для преобразования сигнала в EQ256 отсчетов
@@ -74,4 +90,4 @@
     end;
     while (size(S,1) > EQ256) % если пересчет дал больше 256 точек
     	S(size(S,1),:) = []; %модель сигнала после АЦП
-    end; 
+    end;  
