@@ -43,8 +43,9 @@ function [S, Rd] = signal_target1(EQ64, EQ256)
         ZOND_2(i+1) = exp(-fi*l)*sin(2*pi*(kk*i+Tm)*f0 + pi*b*(i*kk+Tm)^2); %модель зондирующего сигнала
     end;    
     for i=I/2:1:I-1
-        ZOND_1(i+1) = exp( fi*l)*sin(-2*pi*kk*i*f0 - pi*b*(i*kk)^2); %модель зондирующего сигнала 
-        ZOND_2(i+1) = exp(-fi*l)*sin(-2*pi*(kk*i+Tm)*f0 - pi*b*(i*kk+Tm)^2); %модель зондирующего сигнала
+        j = I-i;
+        ZOND_1(i+1) = exp( fi*l)*sin(-2*pi*kk*j*f0 - pi*b*(j*kk)^2); %модель зондирующего сигнала 
+        ZOND_2(i+1) = exp(-fi*l)*sin(-2*pi*(kk*j+Tm)*f0 - pi*b*(j*kk+Tm)^2); %модель зондирующего сигнала
     end;            %спад
     %модель принятых сигналов
     mu=0; %мат.ожидание
@@ -63,9 +64,10 @@ function [S, Rd] = signal_target1(EQ64, EQ256)
         S14_RX(i+1) = exp(-fi2*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 4 антенне
     end;             %спад
     for i=I/2:1:I-1
-        freq = -2*pi*kk*(i+J1)*f0 - pi*b*((i+J1)*kk)^2; %+ 2*pi*fd1*Tm;    %Цель1      
-        freq = -2*pi*kk*(i+J2)*f0 - pi*b*((i+J2)*kk)^2; %+ 2*pi*fd2*Tm;    %Цель2           
-        freq = -2*pi*kk*(i+J3)*f0 - pi*b*((i+J3)*kk)^2; %+ 2*pi*fd3*Tm;    %Цель3
+        j = I-i;
+        freq = - 2*pi*kk*(j+J1)*f0 - pi*b*((j+J1)*kk)^2; %+ 2*pi*fd1*Tm;    %Цель1      
+        freq = - 2*pi*kk*(j+J2)*f0 - pi*b*((j+J2)*kk)^2; %+ 2*pi*fd2*Tm;    %Цель2           
+        freq = - 2*pi*kk*(j+J3)*f0 - pi*b*((j+J3)*kk)^2; %+ 2*pi*fd3*Tm;    %Цель3
         S11_RX(i+1) = exp( fi2*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 1 антенне
         S12_RX(i+1) = exp( fi1*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 2 антенне
         S13_RX(i+1) = exp(-fi1*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND; %модель сигнала на 3 антенне 
