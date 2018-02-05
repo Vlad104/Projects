@@ -1,5 +1,5 @@
-function Struct = clustering(energy, energy0, angle, Rd, Vd, EQ64, EQ256)
-%function [Struct, MAT] = clustering(energy, energy0, angle, EQ64, EQ256)
+function Struct = clustering(energy, energy0, arg, Rd, Vd, EQ64, EQ256)
+%function [Struct, MAT] = clustering(energy, energy0, arg, EQ64, EQ256)
 %	функция кластеризации
 %   выделяет отдельные односвязные области
 %   заполняет структуру данных для каждой области
@@ -7,7 +7,7 @@ function Struct = clustering(energy, energy0, angle, Rd, Vd, EQ64, EQ256)
 %       - energy - матрица EQ64хEQ256 значений мощности в точках, со
 %         значением выше порога и 0 в точках ниже порога
 %       - energy0 - матрица EQ64хEQ256 значений мощности в каждой точке
-%       - angle - угол, в каждой точке
+%       - arg - угол, в каждой точке
 %       - Rd и Vd - разрешение по дальности и скорости соответственно
 %       - EQ256 и EQ64 - эквиваленты чисел 256 и 64 соответственног
 %   выход:
@@ -50,7 +50,8 @@ function Struct = clustering(energy, energy0, angle, Rd, Vd, EQ64, EQ256)
                     Struct(struct_size,3) = Struct(struct_size,3) + j*energy(i,j); % дальность до цели                     
                     Struct(struct_size,4) = Struct(struct_size,4) + (i - EQ64/2)*energy(i,j); % относительная скорость цели       
                     %Struct(struct_size,4) = Struct(struct_size,4) + (i)*energy(i,j); % относительная скорость цели                
-                    Struct(struct_size,5) = Struct(struct_size,5) + angle(i,j)*energy(i,j); % угол до цели
+                   % Struct(struct_size,5) = Struct(struct_size,5) + arg(i,j)*energy(i,j); % угол до цели               
+                    Struct(struct_size,5) = Struct(struct_size,5) + arg(i,j)*energy(i,j); % угол до цели
                     Struct(struct_size,6) = Struct(struct_size,6) + 1; % кол-во точек в области (нужно для отладки)
 
                     Mark(i,j) = 1; % помечаем точку пройденной, больше мы в неё не войдем
@@ -59,7 +60,7 @@ function Struct = clustering(energy, energy0, angle, Rd, Vd, EQ64, EQ256)
 
                     %проверка точки справа, если она интересная, записываем
                     %её координаты в стэк
-                    if ( j + 1 <= EQ256 && Mark(i, j+1) == 0 && energy(i, j+1) > 0 && abs(angle(i,j) - angle(i,j+1)) < 2 )  
+                    if ( j + 1 <= EQ256 && Mark(i, j+1) == 0 && energy(i, j+1) > 0 && abs(arg(i,j) - arg(i,j+1)) < 2 )  
                         stack_pointer = stack_pointer + 1;
                         Stack(stack_pointer,1) = i;
                         Stack(stack_pointer,2) = j+1;
@@ -67,7 +68,7 @@ function Struct = clustering(energy, energy0, angle, Rd, Vd, EQ64, EQ256)
                     
                     %проверка точки слева, если она интересная, записываем
                     %её координаты в стэк
-                    if ( j - 1 >= 1 && Mark(i, j-1) == 0 && energy(i, j-1) > 0 && abs(angle(i,j) - angle(i,j-1)) < 2 )
+                    if ( j - 1 >= 1 && Mark(i, j-1) == 0 && energy(i, j-1) > 0 && abs(arg(i,j) - arg(i,j-1)) < 2 )
                         stack_pointer = stack_pointer + 1; 
                         Stack(stack_pointer,1) = i;
                         Stack(stack_pointer,2) = j-1;
@@ -75,7 +76,7 @@ function Struct = clustering(energy, energy0, angle, Rd, Vd, EQ64, EQ256)
 
                     %проверка точки снизу, если она интересная, записываем
                     %её координаты в стэк
-                    if ( i + 1 <= EQ64 && Mark(i+1, j) == 0 && energy(i+1, j) > 0 && abs(angle(i,j) - angle(i+1,j)) < 2 )
+                    if ( i + 1 <= EQ64 && Mark(i+1, j) == 0 && energy(i+1, j) > 0 && abs(arg(i,j) - arg(i+1,j)) < 2 )
                         stack_pointer = stack_pointer + 1; 
                         Stack(stack_pointer,1) = i+1;
                         Stack(stack_pointer,2) = j;
@@ -83,7 +84,7 @@ function Struct = clustering(energy, energy0, angle, Rd, Vd, EQ64, EQ256)
 
                     %проверка точки сверху, если она интересная, записываем
                     %её координаты в стэк
-                    if ( i - 1 >= 1 && Mark(i-1, j) == 0 && energy(i-1, j) > 0 && abs(angle(i,j) - angle(i-1,j)) < 2 )
+                    if ( i - 1 >= 1 && Mark(i-1, j) == 0 && energy(i-1, j) > 0 && abs(arg(i,j) - arg(i-1,j)) < 2 )
                         stack_pointer = stack_pointer + 1; 
                         Stack(stack_pointer,1) = i-1;
                         Stack(stack_pointer,2) = j;

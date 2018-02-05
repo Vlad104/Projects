@@ -36,7 +36,7 @@ k = 6; % коэффициент порога
 energy = adaptive_filtering(energy0, k, EQ64, EQ256/2);
 
 % расчет угла
-angle = argument(BufferFFTw1, BufferFFTw2, energy, EQ64, EQ256/2);
+arg = argument(BufferIn1, BufferIn2, energy, EQ64, EQ256/2);
 
 % кластеризация и заполнение структуры
-Struct = clustering(energy, energy0, angle, Rd, Vd, EQ64, EQ256/2);
+Struct = clustering(energy, energy0, arg, Rd, Vd, EQ64, EQ256/2);

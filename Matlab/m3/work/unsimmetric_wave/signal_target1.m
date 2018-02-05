@@ -25,7 +25,7 @@ function [S1, S2, Rd, Vd] = signal_target1(EQ64, EQ256)
     tau1 = 2*R1/c; %
     fb1 = B*tau1/Tm; %
     J1 = tau1/kk; %задержка в осчетах модели
-    fi1 = 40*pi/180; %угол пеленга в рад
+    fi1 = 34*pi/180; %угол пеленга в рад
     
     %Зондирующий сигнал
     for i=0:1:I-1
@@ -41,8 +41,9 @@ function [S1, S2, Rd, Vd] = signal_target1(EQ64, EQ256)
     for i=0:1:I-1
         for j = 0:1:FF-1     
             freq = 2*pi*(i+J1)*kk*f0 + pi*b*((i+J1)*kk)^2 + 2*pi*fd1*j*Tm;
-            S1_RX(i+1,j+1) = exp(frx1*l)*exp(fi1*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND;
-            S2_RX(i+1,j+1) = exp(frx2*l)*exp(fi1*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND;
+            S1_RX(i+1,j+1) = exp(fi1*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND;
+            freq = 2*pi*(i+J1+1)*kk*f0 + pi*b*((i+J1+1)*kk)^2 + 2*pi*fd1*(j+1)*Tm;
+            S2_RX(i+1,j+1) = exp(fi1*l)*sin(freq + (mu+sigma.*randn(1,1))) + RAND;
         end;
     end;
     
