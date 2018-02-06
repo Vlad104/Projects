@@ -1,4 +1,4 @@
-function energy = adaptive_filtering(energy0, k, EQ64, EQ256)
+function energy = filtering(energy0, k, EQ64, EQ256)
 %	функция пороговой фильтрации входной матрицы
 %   вход:
 %       - energy0 - матрица EQ64хEQ256 значений мощности в каждой точке

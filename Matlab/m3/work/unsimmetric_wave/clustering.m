@@ -20,9 +20,9 @@ function Struct = clustering(energy, energy0, arg, Rd, Vd, EQ64, EQ256)
 %                           6 - кол-во точек в области (нужно для отладки)  
 
     %инициализация переменных
-    max_struct_size = 2000; % максимальное колличество целей
-    max_stack_pointer = 100; % максимальный размер области памяти для стека
-    Struct(1:max_struct_size,1:6) = 0;  % создание структуры с нулями
+    max_struct_size = 100; % максимальное колличество целей
+    max_stack_pointer = 20; % максимальный размер области памяти для стека
+    Struct(1:max_struct_size,1:8) = 0;  % создание структуры с нулями
     Mark(1:EQ64,1:EQ256) = 0;  % массив, с отметками о пройденных точках
     Stack(1:max_stack_pointer,1:2) = 0;  % массив (стэк), со значениями координат интересных точек
     struct_size = 1;  % номер цели в структуре
@@ -48,11 +48,14 @@ function Struct = clustering(energy, energy0, arg, Rd, Vd, EQ64, EQ256)
                     Struct(struct_size,1) = struct_size; % номер области
                     Struct(struct_size,2) = Struct(struct_size,2) + energy(i,j); % мощность области                
                     Struct(struct_size,3) = Struct(struct_size,3) + j*energy(i,j); % дальность до цели                     
-                    Struct(struct_size,4) = Struct(struct_size,4) + (i - EQ64/2)*energy(i,j); % относительная скорость цели       
-                    %Struct(struct_size,4) = Struct(struct_size,4) + (i)*energy(i,j); % относительная скорость цели                
-                   % Struct(struct_size,5) = Struct(struct_size,5) + arg(i,j)*energy(i,j); % угол до цели               
+                    Struct(struct_size,4) = Struct(struct_size,4) + (1-i+EQ64/2)*energy(i,j); % относительная скорость цели                      
+                    %Struct(struct_size,4) = Struct(struct_size,4) + (i - EQ64/2 - 1)*energy(i,j); % относительная скорость цели                    
+                    %Struct(struct_size,4) = Struct(struct_size,4) + i*energy(i,j); % относительная скорость цели              
                     Struct(struct_size,5) = Struct(struct_size,5) + arg(i,j)*energy(i,j); % угол до цели
                     Struct(struct_size,6) = Struct(struct_size,6) + 1; % кол-во точек в области (нужно для отладки)
+                    Struct(struct_size,7) = i; % (нужно для отладки)
+                    Struct(struct_size,8) = j; % (нужно для отладки)
+                    
 
                     Mark(i,j) = 1; % помечаем точку пройденной, больше мы в неё не войдем
                     MAT(i,j) = struct_size; % нужно для визуализации кластеризации               
@@ -60,7 +63,7 @@ function Struct = clustering(energy, energy0, arg, Rd, Vd, EQ64, EQ256)
 
                     %проверка точки справа, если она интересная, записываем
                     %её координаты в стэк
-                    if ( j + 1 <= EQ256 && Mark(i, j+1) == 0 && energy(i, j+1) > 0 && abs(arg(i,j) - arg(i,j+1)) < 2 )  
+                    if ( j + 1 <= EQ256 && Mark(i, j+1) == 0 && energy(i, j+1) > 0) % && abs(arg(i,j) - arg(i,j+1)) < 2 )  
                         stack_pointer = stack_pointer + 1;
                         Stack(stack_pointer,1) = i;
                         Stack(stack_pointer,2) = j+1;
@@ -68,7 +71,7 @@ function Struct = clustering(energy, energy0, arg, Rd, Vd, EQ64, EQ256)
                     
                     %проверка точки слева, если она интересная, записываем
                     %её координаты в стэк
-                    if ( j - 1 >= 1 && Mark(i, j-1) == 0 && energy(i, j-1) > 0 && abs(arg(i,j) - arg(i,j-1)) < 2 )
+                    if ( j - 1 >= 1 && Mark(i, j-1) == 0 && energy(i, j-1) > 0) % && abs(arg(i,j) - arg(i,j-1)) < 2 )
                         stack_pointer = stack_pointer + 1; 
                         Stack(stack_pointer,1) = i;
                         Stack(stack_pointer,2) = j-1;
@@ -76,7 +79,7 @@ function Struct = clustering(energy, energy0, arg, Rd, Vd, EQ64, EQ256)
 
                     %проверка точки снизу, если она интересная, записываем
                     %её координаты в стэк
-                    if ( i + 1 <= EQ64 && Mark(i+1, j) == 0 && energy(i+1, j) > 0 && abs(arg(i,j) - arg(i+1,j)) < 2 )
+                    if ( i + 1 <= EQ64 && Mark(i+1, j) == 0 && energy(i+1, j) > 0) % && abs(arg(i,j) - arg(i+1,j)) < 2 )
                         stack_pointer = stack_pointer + 1; 
                         Stack(stack_pointer,1) = i+1;
                         Stack(stack_pointer,2) = j;
@@ -84,7 +87,7 @@ function Struct = clustering(energy, energy0, arg, Rd, Vd, EQ64, EQ256)
 
                     %проверка точки сверху, если она интересная, записываем
                     %её координаты в стэк
-                    if ( i - 1 >= 1 && Mark(i-1, j) == 0 && energy(i-1, j) > 0 && abs(arg(i,j) - arg(i-1,j)) < 2 )
+                    if ( i - 1 >= 1 && Mark(i-1, j) == 0 && energy(i-1, j) > 0) % && abs(arg(i,j) - arg(i-1,j)) < 2 )
                         stack_pointer = stack_pointer + 1; 
                         Stack(stack_pointer,1) = i-1;
                         Stack(stack_pointer,2) = j;
@@ -106,9 +109,9 @@ function Struct = clustering(energy, energy0, arg, Rd, Vd, EQ64, EQ256)
         if (Struct(i,2) > 0)
             Struct(i,3) = Rd*Struct(i,3)/Struct(i,2); %*Rd
             Struct(i,4) = Vd*Struct(i,4)/Struct(i,2); %*Vd
-            %Struct(i,3) = Struct(i,3)/Struct(i,2); %*Rd
-            %Struct(i,4) = Struct(i,4)/Struct(i,2); %*Vd
-            Struct(i,5) = Struct(i,5)/Struct(i,2);
+            %Struct(i,4) = 125*Struct(i,4)/Struct(i,2); %*fdd
+            %Struct(i,5) = Struct(i,5)/Struct(i,2); %радианы
+            Struct(i,5) = (180/pi)*Struct(i,5)/Struct(i,2); % градусы
         end;
     end;
 end
