@@ -9,7 +9,7 @@ function Struct = clustering(energy, energy0, arg, Rd, Vd, EQ64, EQ256)
 %       - energy0 - матрица EQ64хEQ256 значений мощности в каждой точке
 %       - arg - угол, в каждой точке
 %       - Rd и Vd - разрешение по дальности и скорости соответственно
-%       - EQ256 и EQ64 - эквиваленты чисел 256 и 64 соответственног
+%       - EQ256 и EQ64 - эквиваленты чисел 256 и 64 соответственно
 %   выход:
 %       - struct - структура:
 %                           1 - номер области (цели), 
@@ -47,10 +47,8 @@ function Struct = clustering(energy, energy0, arg, Rd, Vd, EQ64, EQ256)
 
                     Struct(struct_size,1) = struct_size; % номер области
                     Struct(struct_size,2) = Struct(struct_size,2) + energy(i,j); % мощность области                
-                    Struct(struct_size,3) = Struct(struct_size,3) + j*energy(i,j); % дальность до цели                     
-                    Struct(struct_size,4) = Struct(struct_size,4) + (1-i+EQ64/2)*energy(i,j); % относительная скорость цели                      
-                    %Struct(struct_size,4) = Struct(struct_size,4) + (i - EQ64/2 - 1)*energy(i,j); % относительная скорость цели                    
-                    %Struct(struct_size,4) = Struct(struct_size,4) + i*energy(i,j); % относительная скорость цели              
+                    Struct(struct_size,3) = Struct(struct_size,3) + (j - 1)*energy(i,j); % дальность до цели                     
+                    Struct(struct_size,4) = Struct(struct_size,4) + (i - EQ64/2)*energy(i,j); % относительная скорость цели           
                     Struct(struct_size,5) = Struct(struct_size,5) + arg(i,j)*energy(i,j); % угол до цели
                     Struct(struct_size,6) = Struct(struct_size,6) + 1; % кол-во точек в области (нужно для отладки)
                     Struct(struct_size,7) = i; % (нужно для отладки)
@@ -109,7 +107,6 @@ function Struct = clustering(energy, energy0, arg, Rd, Vd, EQ64, EQ256)
         if (Struct(i,2) > 0)
             Struct(i,3) = Rd*Struct(i,3)/Struct(i,2); %*Rd
             Struct(i,4) = Vd*Struct(i,4)/Struct(i,2); %*Vd
-            %Struct(i,4) = 125*Struct(i,4)/Struct(i,2); %*fdd
             %Struct(i,5) = Struct(i,5)/Struct(i,2); %радианы
             Struct(i,5) = (180/pi)*Struct(i,5)/Struct(i,2); % градусы
         end;
