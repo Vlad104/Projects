@@ -36,7 +36,8 @@ energy1(33:1:64,:) = energy0(64:-1:33,:);
 k = 6; % коэффициент порога
 
 % пороговая фильтрация
-energy = filtering(energy1, k, EQ64, EQ256/2);
+energy2 = filtering(energy1, k, EQ64, EQ256/2);
+energy = threshold_filter(energy1, k, EQ64, EQ256/2, 3, 2);
 
 % расчет угла
 arg = argument(BufferIn1, BufferIn2, energy, EQ64, EQ256/2);
