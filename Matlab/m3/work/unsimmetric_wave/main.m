@@ -34,10 +34,11 @@ energy1(1:1:32,:) = energy0(32:-1:1,:);
 energy1(33:1:64,:) = energy0(64:-1:33,:);
 
 k = 6; % коэффициент порога
+n_look = 10; % колличество обозреваемых точек 
+n_miss = 2; % колличество пропускаемых точек 
 
 % пороговая фильтрация
-energy2 = filtering(energy1, k, EQ64, EQ256/2);
-energy = threshold_filter(energy1, k, EQ64, EQ256/2, 3, 2);
+energy = threshold_filter(energy1, k, EQ64, EQ256/2, n_look, n_miss);
 
 % расчет угла
 arg = argument(BufferIn1, BufferIn2, energy, EQ64, EQ256/2);
@@ -45,3 +46,11 @@ arg = argument(BufferIn1, BufferIn2, energy, EQ64, EQ256/2);
 % кластеризация и заполнение структуры
 % нулевая скорость в 32 строке energy -> 64 строка неинформативна
 Struct = clustering(energy, energy1, arg, Rd, Vd, EQ64, EQ256/2);
+
+[X,Y] = meshgrid(1*Rd:Rd:128*Rd ,-31*Vd:Vd:32*Vd);
+surfc(X,Y,energy1);
+%title('Распределение мощностей принятых сигналов');
+title('Матрица дальность - скорость');
+xlabel('Дальность, м');
+ylabel('Относительная скорость, м/с');
+zlabel('Мощность');
