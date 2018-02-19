@@ -47,10 +47,20 @@ arg = argument(BufferIn1, BufferIn2, energy, EQ64, EQ256/2);
 % нулевая скорость в 32 строке energy -> 64 строка неинформативна
 Struct = clustering(energy, energy1, arg, Rd, Vd, EQ64, EQ256/2);
 
-[X,Y] = meshgrid(1*Rd:Rd:128*Rd ,-31*Vd:Vd:32*Vd);
-surfc(X,Y,energy1);
-%title('Распределение мощностей принятых сигналов');
-title('Матрица дальность - скорость');
-xlabel('Дальность, м');
-ylabel('Относительная скорость, м/с');
-zlabel('Мощность');
+    ax = Rd:Rd:128*Rd;
+    ay = -31*Vd:Vd:32*Vd;
+%     %[X,Y] = meshgrid(ax ,ay);
+    %surfc(X,Y,energy1);
+%    surfc(energy1);
+    image(ax,ay, energy1, 'CDataMapping' , 'scaled' )
+    %image(BufferIn1', 'CDataMapping' , 'scaled' )
+    hold on
+%     %image(energy1, 'CDataMapping' , 'scaled' );
+    title('Матрица дальность - скорость');
+    %title(['Номер кадра: ', num2str(F)]);
+    xlabel('Дальность, м');
+    ylabel('Относительная скорость, м/с');
+    zlabel('Мощность');
+    pause(0.1)
+    %W(F,:,:) = energy1;
+    %SS(F) = Struct;
