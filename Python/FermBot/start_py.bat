@@ -1,1 +1,1 @@
-ferm_bot.py
+python ferm_bot.py M 1

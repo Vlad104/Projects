@@ -30,6 +30,7 @@ BufferFFTw2 = fft(BufferFFTt2);
 % расчет мощности в каждой точке (сумма модулей соответствующих двух чисел)
 energy0 = abs(BufferFFTw1) + abs(BufferFFTw2);
 % преобразование матрица дальность-скорость к "привычному" виду
+%energy1 = energy0;
 energy1(1:1:32,:) = energy0(32:-1:1,:);
 energy1(33:1:64,:) = energy0(64:-1:33,:);
 
@@ -41,7 +42,8 @@ n_miss = 2; % колличество пропускаемых точек
 energy = threshold_filter(energy1, k, EQ64, EQ256/2, n_look, n_miss);
 
 % расчет угла
-arg = argument(BufferIn1, BufferIn2, energy, EQ64, EQ256/2);
+%arg = argument(BufferIn1, BufferIn2, energy, EQ64, EQ256/2);
+arg = argument1(BufferFFTw1, BufferFFTw2, energy, EQ64, EQ256/2);
 
 % кластеризация и заполнение структуры
 % нулевая скорость в 32 строке energy -> 64 строка неинформативна
