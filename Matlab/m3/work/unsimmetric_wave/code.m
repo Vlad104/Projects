@@ -1,11 +1,12 @@
-nami = 'C:\Users\Ignat\Desktop\DATAS\НАМИ\3\radar\nami3_2017_05_26__12_29_13.mat';
-range = 741:1155;
+nami = 'C:\Users\Ignat\Desktop\DATAS\НАМИ\2\radar\nami22017_05_24__15_22_19.mat';
+%range = 741:1155;
 %nami = 'C:\Users\Ignat\Desktop\DATAS\НАМИ\3\radar\nami3_2017_05_26__11_09_20.mat'; 
 %range = 904:1335;
 %nami = 'C:\Users\Ignat\Desktop\DATAS\НАМИ\3\radar\nami3_2017_05_26__10_28_16.mat'; 
 %range = 75:252;
 
 frames_full = load(nami);
+range = 1:size(frames_full.Array_of_data,2);
 frames = frames_full.Array_of_data(range);
 fnum = size(range,2);
 
@@ -77,7 +78,7 @@ for F = 1:fnum
     xlabel('Дальность, м');
     ylabel('Относительная скорость, м/с');
     zlabel('Мощность');
-    pause(0.1)
+    pause(0.01)
     %W(F,:,:) = energy1;
     %SS(F) = Struct;
 end;

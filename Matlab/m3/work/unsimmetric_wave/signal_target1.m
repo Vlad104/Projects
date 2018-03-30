@@ -1,6 +1,7 @@
 function [S1, S2, Rd, Vd] = signal_target1(EQ64, EQ256)
     %инициализация матриц
-    ZOND(1:25000,1:64) = 0;     %зондирующий сигнал
+    ZOND_SIN(1:25000,1:64) = 0;     %зондирующий сигнал
+    ZOND_COS(1:25000,1:64) = 0;     %зондирующий сигнал
     S1_RX(1:25000,1:64) = 0;    %сигнал, принятый первой антенной
     S2_RX(1:25000,1:64) = 0;    %сигнал, принятый втрой антенной
     S1_SM(1:25000,1:64) = 0;    %сигнал на выходе смесителя 1
@@ -26,7 +27,6 @@ function [S1, S2, Rd, Vd] = signal_target1(EQ64, EQ256)
     FF = EQ64; %количество накапливаемых периодов
     mu=0; %мат.ожидание
     sigma=0.1; %СКО
-    RAND=(mu+sigma.*randn(1,1));
     
     % Для задания требуемого числа целей нужно изменять переменную N.
     % (Пример: N = 3; - 3 цели).
@@ -44,7 +44,7 @@ function [S1, S2, Rd, Vd] = signal_target1(EQ64, EQ256)
     phi(1:N) = 0;
     
     % ЦЕЛЬ 1. Параметры начало
-    V(1) = -2*Vd; % скорость цели, м/с
+    V(1) = -4*Vd; % скорость цели, м/с
     R(1) = 100; %дальность до цели, м
     phi_grad(1) = 45; %угол пеленга в градусах
     % ЦЕЛЬ 1. Параметры конец
@@ -67,14 +67,16 @@ function [S1, S2, Rd, Vd] = signal_target1(EQ64, EQ256)
     %Зондирующий сигнал
     for i=0:1:I-1
         for j = 0:1:FF-1
-            ZOND(i+1,j+1) = sin(2*pi*kk*i*f0 + pi*b*(i*kk)^2); %модель зондирующего сигнала        
+            freq = 2*pi*kk*i*f0 + pi*b*(i*kk)^2;
+            ZOND_SIN(i+1,j+1) = sin(freq); %модель зондирующего сигнала  
+            ZOND_COS(i+1,j+1) = cos(freq); %модель зондирующего сигнала       
         end;
     end;  
     
     frx1 =  2*pi/180;
     frx2 = -2*pi/180;
     l = sqrt(-1);
-    %Сигналы, принытые антенной
+    %Сигналы, принятые антенной
     for i=0:1:I-1
         for j = 0:1:FF-1
             for z = 1:1:N
@@ -84,12 +86,21 @@ function [S1, S2, Rd, Vd] = signal_target1(EQ64, EQ256)
             end;
         end;
     end;
-    
+    VV = 0;
     %Сигналы на выходе смесителя
     for i=0:1:I-1
-        for j = 0:1:FF-1    
-            S1_SM(i+1,j+1)=(ZOND(i+1,j+1)*S1_RX(i+1,j+1)); 
-            S2_SM(i+1,j+1)=(ZOND(i+1,j+1)*S2_RX(i+1,j+1));
+        for j = 0:1:FF-1
+            S1_SM_SIN = ZOND_SIN(i+1,j+1)*S1_RX(i+1,j+1);
+            S1_SM_COS = ZOND_COS(i+1,j+1)*S1_RX(i+1,j+1);
+            
+            S2_SM_SIN = ZOND_SIN(i+1,j+1)*S2_RX(i+1,j+1);
+            S2_SM_COS = ZOND_COS(i+1,j+1)*S2_RX(i+1,j+1);
+            
+            %S1_SM(i+1,j+1) = complex( sqrt( abs(S1_SM_SIN) + abs(S1_SM_COS) )); 
+            %S2_SM(i+1,j+1) = complex( sqrt( abs(S2_SM_SIN) + abs(S2_SM_COS) ));
+            
+            S1_SM(i+1,j+1) = S1_SM_SIN; 
+            S2_SM(i+1,j+1) = S2_SM_SIN; 
         end;
     end; 
        

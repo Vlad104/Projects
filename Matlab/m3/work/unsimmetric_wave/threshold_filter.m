@@ -16,9 +16,9 @@ function energy = threshold_filter(energy0, k, EQ64, EQ256, n_look, n_miss)
     temp(1:EQ64+2*n) = 0;
     
     for i = 1:EQ64
-        temp(1:n) =  energy0(i,EQ256:-1:EQ256-n+1);
+        temp(1:n) = 0; % = energy0(n+1:);
         temp(n+1:EQ256+n) = energy0(i,1:EQ256);
-        temp(EQ256+n+1:EQ256+2*n) = energy0(i,1:n);
+        temp(EQ256+n+1:EQ256+2*n) = 0; % = energy0(i,1:n);
         for j = n+1:EQ256+n
             S1 = 0;
             S2 = 0;
