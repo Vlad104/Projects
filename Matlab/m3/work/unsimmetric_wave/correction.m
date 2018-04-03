@@ -1,4 +1,4 @@
-function W2 = correction(sL1, sR1, EQ256, EQ64)
+function W2 = correction(sL1, sR1, EQ256, EQ64, RN)
 %	функция преобразования данных
 %   вход:
 %       - sL, sR - матрицы входных данных по левому и правому каналу
@@ -6,12 +6,14 @@ function W2 = correction(sL1, sR1, EQ256, EQ64)
 %   выход:
 %       - out1, out2 - матрицы дальность-скорость по каналам
 
-    sL_p(1:256,1:64) = 0;
-    sR_p(1:256,1:64) = 0;
+    sL(1:256,1:64) = 0;
+    sR(1:256,1:64) = 0;
 
     %значения коэффициентов фильтра
-    a = [0.92703707226149745000, -0.92703707226149745000];
-    b = [1.00000000000000000000, -0.85408068546991278000];
+%     a = [0.92703707226149745000, -0.92703707226149745000];
+%     b = [1.00000000000000000000, -0.85408068546991278000];
+    
+    [a,b] = butter(1, 1e6/3e6, 'high');
     
     x = 1:EQ256;
     coeff1 = polyfit(x, sL1(:,1)', 2); %апроскимация полиномом 2-го порядка
@@ -33,8 +35,8 @@ function W2 = correction(sL1, sR1, EQ256, EQ64)
     end;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
-    sL_f = filter(a,b,sL_p);
-    sR_f = filter(a,b,sR_p);
+    sL_f = filter(a,b,sL);
+    sR_f = filter(a,b,sR);
 
     w1=hamming(EQ256); %окно Хэмминна
     BufIn1(1:256,1:64) = 0;
@@ -47,19 +49,14 @@ function W2 = correction(sL1, sR1, EQ256, EQ64)
         end;
     end;
 
-    % for i=1:EQ64
-    %     BufferIn1(:,i) = conv(sL_f(:,i),w1);
-    %     BufferIn2(:,i) = conv(sR_f(:,i),w1);
-    % end;
-
     % БПФ по быстрому времени
     BufFFT_t1 = fft(BufIn1);
     BufFFT_t2 = fft(BufIn2);
 
     %отсечка симметричной части
     %преобразуем [256][64] в [128][64]
-    BufFFT_t1(EQ256/2+1:EQ256,:) = [];
-    BufFFT_t2(EQ256/2+1:EQ256,:) = [];
+    BufFFT_t1(RN+1:EQ256,:) = [];
+    BufFFT_t2(RN+1:EQ256,:) = [];
 
     % операция транспонирования матрицы
     BufFFT_t1 = BufFFT_t1';
@@ -68,7 +65,7 @@ function W2 = correction(sL1, sR1, EQ256, EQ64)
     w2=hamming(EQ64); %окно Хэмминна
     %свертка с окном Хэмминга
     for i=1:EQ64
-        for j=1:EQ256/2
+        for j=1:RN
             BufFFT_t1(i,j) = BufFFT_t1(i,j).*w2(i);
             BufFFT_t2(i,j) = BufFFT_t2(i,j).*w2(i);
         end;
@@ -85,10 +82,4 @@ function W2 = correction(sL1, sR1, EQ256, EQ64)
     W2(1:1:EQ64/2,:) = W0(EQ64/2:-1:1,:);
     W2(EQ64/2+1:1:64,:) = W0(EQ64:-1:EQ64/2+1,:);
       
-%     Rd = 3;  %разрешение по дальности
-%     Vd = 0.78125; %разрешение по скорости  
-%     ax = Rd:Rd:128*Rd;    
-%     ay = -31*Vd:Vd:32*Vd;
-%     colormap(jet);
-%     pcolor(ax,ay, abs(BufFFT_w1));
 end

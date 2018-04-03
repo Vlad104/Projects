@@ -96,11 +96,11 @@ function [S1, S2, Rd, Vd] = signal_target1(EQ64, EQ256)
             S2_SM_SIN = ZOND_SIN(i+1,j+1)*S2_RX(i+1,j+1);
             S2_SM_COS = ZOND_COS(i+1,j+1)*S2_RX(i+1,j+1);
             
-            %S1_SM(i+1,j+1) = complex( sqrt( abs(S1_SM_SIN) + abs(S1_SM_COS) )); 
-            %S2_SM(i+1,j+1) = complex( sqrt( abs(S2_SM_SIN) + abs(S2_SM_COS) ));
+            S1_SM(i+1,j+1) = sqrt( abs(S1_SM_SIN) + abs(S1_SM_COS) ); 
+            S2_SM(i+1,j+1) = sqrt( abs(S2_SM_SIN) + abs(S2_SM_COS) );
             
-            S1_SM(i+1,j+1) = S1_SM_SIN; 
-            S2_SM(i+1,j+1) = S2_SM_SIN; 
+            %S1_SM(i+1,j+1) = S1_SM_SIN; 
+            %S2_SM(i+1,j+1) = S2_SM_SIN; 
         end;
     end; 
        
