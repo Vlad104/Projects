@@ -8,20 +8,20 @@ RN = 50;          % кол-во рассматриваемых отсчетов по дальности
 Rd = 3;  %разрешение по дальности
 Vd = 0.78125; %разрешение по скорости
 
-% frames_full = load('C:\Users\Ignat\Desktop\DATAS\НАМИ\3\radar\nami3_2017_05_26__10_46_32.mat'); 
-% frames = frames_full.Array_of_data();
-% len=length(frames(1,:)); %размер данных
-len = 1;
+frames_full = load('C:\Users\Ignat\Desktop\DATAS\НАМИ\3\radar\nami3_2017_05_26__10_46_32.mat'); 
+frames = frames_full.Array_of_data();
+len=length(frames(1,:)); %размер данных
+% len = 1;
 
 for F = 1:len
     
-%     sL  = double(frames(F).data_1canal); % 64*256 с левого канала
-%     sR  = double(frames(F).data_2canal);  % 64*256 с правого канала
-%     sL = sL';
-%     sR = sR';
+    sL  = double(frames(F).data_1canal); % 64*256 с левого канала
+    sR  = double(frames(F).data_2canal);  % 64*256 с правого канала
+    sL = sL';
+    sR = sR';
     
     % запись двух входных сигналов с двух каналов
-    [sL, sR, Rd, Vd] = signal_target1(EQ64, EQ256);
+    % [sL, sR, Rd, Vd] = signal_target1(EQ64, EQ256);
     
     [W1, BufFFT_w1, BufFFT_w2] = processing(sL, sR, EQ256, EQ64, RN);
     W2 = correction(sL, sR, EQ256, EQ64, RN);

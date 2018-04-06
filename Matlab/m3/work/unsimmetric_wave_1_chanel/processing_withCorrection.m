@@ -1,15 +1,38 @@
-function W2 = processing(sL, sR, EQ64, EQ256, RN)
-   
+function W3 = processing_withCorrection(sL_bad, sR_bad, EQ64, EQ256, RN)
+    
+    x = 1:EQ256;
+    coeff1 = polyfit(x, sL_bad(1,:), 2); %апроскимация полиномом 2-го порядка
+    coeff2 = polyfit(x, sR_bad(1,:), 2);
+    
+    for i=1:EQ64 %компенсация ПАМ
+        sL_bad(i,:) = sL_bad(i,:) - polyval(coeff1, x);
+        sR_bad(i,:) = sR_bad(i,:) - polyval(coeff2, x);
+    end;
+    
+    % медианный фильтр
+    sL(1:EQ64,1:EQ256) = 0;
+    sR(1:EQ64,1:EQ256) = 0;
+    for i = 1:EQ64
+        sL(i,:) = medfilt2(sL_bad(i,:),[1 5]);
+        sR(i,:) = medfilt2(sR_bad(i,:),[1 5]);
+    end;    
+
+    % фильтр какой-то
+    [b1,a1]=butter(6,0.5);    
+    for i=1:EQ64
+        sL(i,:) = filter(b1,a1,sL_bad(i,:));
+        sR(i,:) = filter(b1,a1,sR_bad(i,:));
+    end;
     % ФВЧ
     sL_hps(1:EQ64,1:256) = 0;
-    sR_hps(1:EQ64,1:256) = 0;
-    fdd = EQ256*8000;
+    sR_hps(1:EQ64,1:256) = 0;    
+    fdd = 256*8000;
     [b,a] = butter(1, 1e6/fdd, 'high'); 
     for i = 1:EQ64
         sL_hps(i,:) = filter(b,a,sL(i,:));
         sR_hps(i,:) = filter(b,a,sR(i,:));
     end;
-    
+
     % свертка с окном Хэмминга
     BufIn1(1:EQ64,1:EQ256) = 0;
     BufIn2(1:EQ64,1:EQ256) = 0;
@@ -19,7 +42,7 @@ function W2 = processing(sL, sR, EQ64, EQ256, RN)
         BufIn2(i,:) = sR_hps(i,:).*w1;
     end;
 
-    % БПФ по быстрому времени (по периоду сигнала)
+    % БПФ по быстрому времени (по строкам)
     BufFFT_t1(1:EQ64,1:EQ256) = 0;
     BufFFT_t2(1:EQ64,1:EQ256) = 0;
     for i=1:EQ64
@@ -39,13 +62,14 @@ function W2 = processing(sL, sR, EQ64, EQ256, RN)
         BufIn2(:,i) = sR_hps(:,i).*w2;
     end;
 
-    % БПФ по медленному времени (по накопленным периодам)
+    % БПФ по быстрому времени (по столбцам)
     BufFFT_w1 = fft(BufFFT_t1);
     BufFFT_w2 = fft(BufFFT_t2);
 
     % расчет мощности в каждой точке (сумма модулей соответствующих двух чисел
     W0 = abs(BufFFT_w1) + abs(BufFFT_w2);
+    
     % преобразование матрица дальность-скорость к стандартному виду
-    W2(1:1:EQ64/2,:) = W0(EQ64/2:-1:1,:);
-    W2(EQ64/2+1:1:64,:) = W0(EQ64:-1:EQ64/2+1,:);
+    W3(1:1:EQ64/2,:) = W0(EQ64/2:-1:1,:);
+    W3(EQ64/2+1:1:64,:) = W0(EQ64:-1:EQ64/2+1,:);
 end
