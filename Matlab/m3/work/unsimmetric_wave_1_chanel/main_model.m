@@ -3,20 +3,30 @@ clear
 EQ64  = 64;
 EQ256 = 256;
 RN    = 50;
-R  = [50, 100]; 
-V  = [10, -10];
-fi = [10, 45];
+R  = [100]; 
+V  = [10];
+fi = [19];
 
 % зондирующий и принятые сигналы
-[s0, sL_rx, sR_rx] = signal(R, V, fi, EQ64, EQ256);
+[s0_cos, s0_sin, sL_rx, sR_rx] = signal(R, V, fi, EQ64, EQ256);
 L = length(sL_rx); % кол-во отсчетов
 
 % сигналы на выходе смесителя
 sL_sm(1:EQ64,1:L) = 0;
 sR_sm(1:EQ64,1:L) = 0;
+sL_sm_cos(1:EQ64,1:L) = 0;
+sR_sm_cos(1:EQ64,1:L) = 0;
+sL_sm_sin(1:EQ64,1:L) = 0;
+sR_sm_sin(1:EQ64,1:L) = 0;
 for i = 1:EQ64
-    sL_sm(i, :) = s0(i,:).*sL_rx(i,:);
-    sR_sm(i, :) = s0(i,:).*sR_rx(i,:);
+    sL_sm_cos(i, :) = s0_cos(i,:).*sL_rx(i,:);
+    sR_sm_cos(i, :) = s0_cos(i,:).*sR_rx(i,:);
+    sL_sm_sin(i, :) = s0_sin(i,:).*sL_rx(i,:);
+    sR_sm_sin(i, :) = s0_sin(i,:).*sR_rx(i,:);
+    sL_sm(i, :) = sL_sm_cos(i, :);
+    sR_sm(i, :) = sR_sm_cos(i, :);    
+%     sL_sm(i, :) = sqrt(sL_sm_cos(i, :).^2 + sL_sm_sin(i, :).^2);
+%     sR_sm(i, :) = sqrt(sR_sm_cos(i, :).^2 + sR_sm_sin(i, :).^2);    
 end;
 
 % ФНЧ, fc = 1MHz
@@ -81,10 +91,18 @@ W0 = abs(BufFFT_w1) + abs(BufFFT_w2);
 W1(1:1:EQ64/2,:) = W0(EQ64/2:-1:1,:);
 W1(EQ64/2+1:1:64,:) = W0(EQ64:-1:EQ64/2+1,:);
 
+W = detector_const_threshold(W1, 200, EQ64, RN);
+%W = detector(W1, EQ64, RN);
+
+arg = peleng_angle(W, BufFFT_w1, BufFFT_w2, EQ64, RN);
+
 % отрисовка
 Rd = 3;
 Vd = 0.78125;
 ax = Rd:Rd:RN*Rd;    
 ay = -31*Vd:Vd:32*Vd;
-%colormap(jet);
-pcolor(ax,ay, W1);
+%colormap(winter);
+subplot(1,3,1); pcolor(ax,ay, W1);
+subplot(1,3,2); pcolor(ax,ay, W);
+subplot(1,3,3); pcolor(ax,ay, arg);
+arg(19,34)
