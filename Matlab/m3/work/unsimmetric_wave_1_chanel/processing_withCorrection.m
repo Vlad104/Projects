@@ -1,4 +1,4 @@
-function W3 = processing_withCorrection(sL_bad, sR_bad, EQ64, EQ256, RN)
+BufFFT_w1function W3 = processing_withCorrection(sL_bad, sR_bad, EQ64, EQ256, RN)
     
     x = 1:EQ256;
     coeff1 = polyfit(x, sL_bad(1,:), 2); %апроскимация полиномом 2-го порядка
@@ -23,11 +23,13 @@ function W3 = processing_withCorrection(sL_bad, sR_bad, EQ64, EQ256, RN)
         sL(i,:) = filter(b1,a1,sL_bad(i,:));
         sR(i,:) = filter(b1,a1,sR_bad(i,:));
     end;
+    
     % ФВЧ
     sL_hps(1:EQ64,1:256) = 0;
     sR_hps(1:EQ64,1:256) = 0;    
     fdd = 256*8000;
-    [b,a] = butter(1, 1e6/fdd, 'high'); 
+    fnn = fdd/2; %частота Найквиста
+    [b,a] = butter(1, 4e5/fnn, 'high'); 
     for i = 1:EQ64
         sL_hps(i,:) = filter(b,a,sL(i,:));
         sR_hps(i,:) = filter(b,a,sR(i,:));

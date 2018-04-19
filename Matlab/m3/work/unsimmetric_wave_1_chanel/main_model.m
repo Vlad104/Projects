@@ -3,9 +3,9 @@ clear
 EQ64  = 64;
 EQ256 = 256;
 RN    = 50;
-R  = [10, 50, 100, 140]; 
-V  = [10, 10, 10, 10];
-fi = [19, 19, 19, 19];
+R  = [100]; 
+V  = [10];
+fi = [190];
 
 % зондирующий и принятые сигналы
 % описание в signal.m
@@ -32,10 +32,10 @@ for i = 1:EQ64
     sR_sm1(i, :) = sqrt(sR_sm_cos(i, :).^2 + sR_sm_sin(i, :).^2);    
 end;
 
-% ФНЧ, fc = 0.4MHz
+% ФНЧ, fc = 1MHz
 sL_lpf(1:EQ64,1:L) = 0;
 sR_lpf(1:EQ64,1:L) = 0;
-[b,a] = butter(2,4e5/8e8,'low');
+[b,a] = butter(2,1e6/8e8,'low');
 for i = 1:EQ64
     sL_lpf(i,:) = filter(b,a,sL_sm(i,:)); 
     sR_lpf(i,:) = filter(b,a,sR_sm(i,:)); 
@@ -45,14 +45,16 @@ end;
 sL(1:EQ64,1:EQ256) = sL_lpf(1:EQ64,1:round(L/EQ256):L);
 sR(1:EQ64,1:EQ256) = sR_lpf(1:EQ64,1:round(L/EQ256):L);
 
-% ФВЧ
-sL_hps(1:EQ64,1:256) = 0;
-sR_hps(1:EQ64,1:256) = 0;
-[b,a] = butter(1, 1e6/(EQ256*8000), 'high'); 
-for i = 1:EQ64
-    sL_hps(i,:) = filter(b,a,sL(i,:));
-    sR_hps(i,:) = filter(b,a,sR(i,:));
-end;
+% % ФВЧ
+% sL_hps(1:EQ64,1:256) = 0;
+% sR_hps(1:EQ64,1:256) = 0;
+% [b,a] = butter(1, 4e5/(EQ256*8000), 'high'); 
+% for i = 1:EQ64
+%     sL_hps(i,:) = filter(b,a,sL(i,:));
+%     sR_hps(i,:) = filter(b,a,sR(i,:));
+% end;
+sL_hps = sL;
+sR_hps = sR;
 
 % свертка с окном Хэмминга
 BufIn1(1:EQ64,1:EQ256) = 0;
