@@ -1,4 +1,4 @@
-function [W3, BufFFT_w1, BufFFT_w2] = processing_withCorrection1(sL_bad, sR_bad, EQ64, EQ256, RN)
+function [W3, BufFFT_w1, BufFFT_w2, sL_bad, sR_bad] = processing_withCorrection1(sL_bad, sR_bad, EQ64, EQ256, RN)
     
     x = 1:EQ256;
     coeff1 = polyfit(x, sL_bad(1,:), 2); %апроскимация полиномом 2-го порядка

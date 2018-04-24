@@ -9,13 +9,13 @@ Rd = 3;  %разрешение по дальности
 Vd = 0.78125; %разрешение по скорости
 
 %frames_full = load('C:\Users\Ignat\Desktop\DATAS\НАМИ\3\radar\nami3_2017_05_26__11_09_20.mat');
-frames_full = load('C:\Users\Ignat\Desktop\DATAS\НАМИ\3\radar\nami3_2017_05_26__12_09_25.mat');
-%frames_full = load('C:\Users\Ignat\Desktop\DATAS\НАМИ\3\radar\nami3_2017_05_26__10_46_32.mat'); 
+%frames_full = load('C:\Users\Ignat\Desktop\DATAS\НАМИ\3\radar\nami3_2017_05_26__12_09_25.mat');
+frames_full = load('C:\Users\Ignat\Desktop\DATAS\НАМИ\3\radar\nami3_2017_05_26__13_30_12.mat');
 frames = frames_full.Array_of_data();
 % len=length(frames(1,:)); %размер данных
 % start = 1;
- start = 860;
- len = 860;
+ start = 390;
+ len = start;
 
 for F = start:len
     
@@ -24,24 +24,31 @@ for F = start:len
   
     %W1 = processing_noFilter(sL, sR, EQ64, EQ256, RN);
     %W2 = processing(sL, sR, EQ64, EQ256,RN);
-    [W3, BufFFT_w1, BufFFT_w2] = processing_withCorrection1(sL, sR, EQ64, EQ256,RN);
+    [W3, BufFFT_w1, BufFFT_w2, A1, A2] = processing_withCorrection1(sL, sR, EQ64, EQ256, RN);
     W = detector_const_threshold(W3, 6000, EQ64, RN);
+    %W = detector(W3, EQ64, RN);
     arg = peleng_angle(W, BufFFT_w1, BufFFT_w2, EQ64, RN);
 
-     %координатная сетка для построения графиков
+    %координатная сетка для построения графиков
     ax = Rd:Rd:RN*Rd;    
     ay = -31*Vd:Vd:32*Vd;
     S = clustering(W, arg, Rd, Vd, EQ64, RN);
 
-    %colormap(jet);
-    %subplot(1,3,1);pcolor(ax,ay, W1);
-    %subplot(1,2,1);pcolor(ax,ay, W2);
-    %subplot(1,2,1);pcolor(ax,ay, W3);
-    subplot(1,1,1);pcolor(ax,ay, W);
-    title(['Номер кадра: ', num2str(F)]);
+    Wp = Cluster_Draw(S, W);
+    %image(ax, -ay, Wp);
+    %colormap(winter);
+    subplot(1,3,1); pcolor(ax,ay, W3);
+    title('Матрица Дальность-Скорость:');
     xlabel('Дальность, м');
     ylabel('Относительная скорость, м/с');
-    %zlabel('Мощность');   
+    subplot(1,3,2); pcolor(ax,ay, W);
+    title('Матрица Дальность-Скорость:');
+    xlabel('Дальность, м');
+    ylabel('Относительная скорость, м/с');
+    subplot(1,3,3); image(ax,ay, Wp);
+    title('Распределение целей:');
+    xlabel('Дальность, м');
+    ylabel('Относительная скорость, м/с');  
     
-    pause(0.05);
+    pause(0.01);
 end

@@ -1,22 +1,21 @@
 % задание начальныйх параметров
 clear
-EQ64  = 64;
-EQ256 = 256;
-RN    = 50;
-R  = [100]; 
-V  = [10];
-fi = [190];
+EQ64  = 64;  % количество накапливаемых периодов
+EQ256 = 256; % количество отсчетов сигнала в одном периоде
+RN    = 50;  % максимальный обозреваемый отсчет по дальности
+% задать параметры целей. размерности R, V и fi должный совпадать
+R  = [100]; % массив растояний до целей
+V  = [10];  % массив отн. скоростей целей
+fi = [10];  % массив углов пеленга целей
 
 % зондирующий и принятые сигналы
 % описание в signal.m
 [s0_cos, s0_sin, sL_rx, sR_rx] = signal(R, V, fi, EQ64, EQ256);
-L = length(sL_rx); % кол-во отсчетов
+L = length(sL_rx); % кол-во отсчетов = fd*Tm
 
 % сигналы на выходе смесителя
 sL_sm(1:EQ64,1:L) = 0;
 sR_sm(1:EQ64,1:L) = 0;
-sL_sm1(1:EQ64,1:L) = 0;
-sR_sm1(1:EQ64,1:L) = 0;
 sL_sm_cos(1:EQ64,1:L) = 0;
 sR_sm_cos(1:EQ64,1:L) = 0;
 sL_sm_sin(1:EQ64,1:L) = 0;
@@ -28,8 +27,8 @@ for i = 1:EQ64
     sR_sm_sin(i, :) = s0_sin(i,:).*sR_rx(i,:);
     sL_sm(i, :) = sL_sm_cos(i, :);
     sR_sm(i, :) = sR_sm_cos(i, :);    
-    sL_sm1(i, :) = sqrt(sL_sm_cos(i, :).^2 + sL_sm_sin(i, :).^2);
-    sR_sm1(i, :) = sqrt(sR_sm_cos(i, :).^2 + sR_sm_sin(i, :).^2);    
+    %sL_sm(i, :) = sL_sm_cos(i, :) + sqrt(-1).*sL_sm_sin(i, :);
+    %sR_sm(i, :) = sR_sm_cos(i, :) + sqrt(-1).*sR_sm_sin(i, :);    
 end;
 
 % ФНЧ, fc = 1MHz
@@ -45,14 +44,14 @@ end;
 sL(1:EQ64,1:EQ256) = sL_lpf(1:EQ64,1:round(L/EQ256):L);
 sR(1:EQ64,1:EQ256) = sR_lpf(1:EQ64,1:round(L/EQ256):L);
 
-% % ФВЧ
-% sL_hps(1:EQ64,1:256) = 0;
-% sR_hps(1:EQ64,1:256) = 0;
-% [b,a] = butter(1, 4e5/(EQ256*8000), 'high'); 
-% for i = 1:EQ64
-%     sL_hps(i,:) = filter(b,a,sL(i,:));
-%     sR_hps(i,:) = filter(b,a,sR(i,:));
-% end;
+% ФВЧ
+sL_hps(1:EQ64,1:256) = 0;
+sR_hps(1:EQ64,1:256) = 0;
+[b,a] = butter(1, 4e5/(EQ256*8000), 'high'); 
+for i = 1:EQ64
+    sL_hps(i,:) = filter(b,a,sL(i,:));
+    sR_hps(i,:) = filter(b,a,sR(i,:));
+end;
 sL_hps = sL;
 sR_hps = sR;
 
@@ -110,7 +109,19 @@ Vd = 0.78125;
 S = clustering(W, arg, Rd, Vd, EQ64, RN);
 ax = Rd:Rd:RN*Rd;    
 ay = -31*Vd:Vd:32*Vd;
+
+Wp = Cluster_Draw(S, W);
+%image(ax, -ay, Wp);
 %colormap(winter);
 subplot(1,3,1); pcolor(ax,ay, W1);
+title('Матрица Дальность-Скорость:');
+xlabel('Дальность, м');
+ylabel('Относительная скорость, м/с');
 subplot(1,3,2); pcolor(ax,ay, W);
-subplot(1,3,3); pcolor(ax,ay, arg);
+title('Матрица Дальность-Скорость:');
+xlabel('Дальность, м');
+ylabel('Относительная скорость, м/с');
+subplot(1,3,3); image(ax,ay, Wp);
+title('Распределение целей:');
+xlabel('Дальность, м');
+ylabel('Относительная скорость, м/с');

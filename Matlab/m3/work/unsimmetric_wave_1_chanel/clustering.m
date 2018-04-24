@@ -111,4 +111,8 @@ function Struct = clustering(energy, arg, Rd, Vd, EQ64, EQ256)
             Struct(i,5) = (180/pi)*Struct(i,5)/Struct(i,2); % градусы
         end;
     end;
+%     i = 1;
+%     while Struct(i,2) == 0
+%         Struct(i,:) = [];
+%     end;
 end

@@ -1,14 +1,13 @@
-function W = detector(W1, EQ64, RN)
-    F = 10e-3;
-    sigma = 0.1;
+function W = detector(X, EQ64, RN)
+    F = 10e-8;  
+    W = X; 
     
-    X0 = sigma*sqrt(-2*log(F));     
-    
-    W = W1;
     for i = 1:EQ64
+        sigma = std(X(i,:));
+        E = sigma*sqrt(-2*log(F));
         for j = 1:RN
-            if W1(i,j) > X0
-                W(i,j) = 1;
+            if X(i,j) > E
+                W(i,j) = X(i,j);
             else
                 W(i,j) = 0;                
             end;

@@ -34,7 +34,7 @@ function [ out1, out2 ] = PrepDataNew(sL1, sR1, a, b)
     end;  
    
     w=hamming(M); % окно Хэмминга
-     for i=1:N %свертка с окном
+    for i=1:N %свертка с окном
         for j=1:M
             BufferIn1(i,j)=s_out_L(i,j).*w(j);
             BufferIn2(i,j)=s_out_R(i,j).*w(j);
