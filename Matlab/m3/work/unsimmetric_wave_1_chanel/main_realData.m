@@ -14,8 +14,8 @@ frames_full = load('C:\Users\Ignat\Desktop\DATAS\НАМИ\3\radar\nami3_2017_05_26__
 frames = frames_full.Array_of_data();
 % len=length(frames(1,:)); %размер данных
 % start = 1;
- start = 390;
- len = 1000;
+ start = 860;
+ len = start;
 
 for F = start:len
     
